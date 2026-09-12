@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080e0c">
+  <meta name="description" content="Fractal Orchard. Small choices. Larger patterns. An experimental game for iOS.">
+  <title>Fractal Orchard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; --night:#080e0c; --bone:#e7eae6; --mist:#a5b0a9; --gold:#c9a468; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--night); color:var(--bone); font-family:'Jost','Avenir Next',sans-serif; font-weight:300; }
+    button,a { -webkit-tap-highlight-color:transparent; }
+    a { color:inherit; }
+    a:focus-visible,button:focus-visible { outline:2px solid var(--gold); outline-offset:6px; }
+    .hero { position:relative; min-height:720px; height:94svh; max-height:1100px; isolation:isolate; display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .hero-art { position:absolute; inset:auto auto 0; left:50%; transform:translateX(-50%); width:auto; max-width:100%; height:calc(100% - 130px); object-fit:contain; object-position:50% 100%; z-index:-2; mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent),linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent); mask-composite:intersect; }
+    .hero::after { content:''; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,rgba(8,14,12,.4),transparent 38%,transparent 73%,var(--night) 100%); }
+    .masthead { width:100%; padding:30px clamp(24px,4vw,64px); display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .sigil { width:30px; height:30px; fill:none; stroke:var(--gold); stroke-width:1.1; stroke-linecap:round; }
+    .eyebrow { margin:0; color:var(--mist); font-size:12px; font-weight:400; letter-spacing:.18em; text-transform:uppercase; line-height:1.6; }
+    .identity { padding:22px 20px 0; }
+    h1 { font-size:clamp(34px,5.4vw,78px); font-weight:300; text-transform:uppercase; letter-spacing:.16em; line-height:1.18; margin:0; text-indent:.16em; }
+    .tagline { font-size:clamp(14px,1.25vw,18px); font-weight:300; letter-spacing:.12em; margin:22px 0 0; color:#c8d1cb; }
+    .scroll-link { margin-top:auto; margin-bottom:28px; padding:12px 20px; text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:12px; font-size:12px; letter-spacing:.16em; text-transform:uppercase; }
+    .scroll-link::after { content:''; height:28px; width:1px; background:linear-gradient(var(--gold),transparent); }
+    .pattern { position:relative; max-width:1080px; margin:auto; padding:76px 24px 52px; text-align:center; }
+    h2 { margin:0; font-size:clamp(23px,3vw,34px); font-weight:300; letter-spacing:.06em; }
+    .marks { display:grid; grid-template-columns:repeat(6,1fr); align-items:center; max-width:600px; margin:0 auto 64px; gap:24px; }
+    .mark { width:36px; height:36px; justify-self:center; fill:none; stroke:#a5b0a9; stroke-width:1.15; stroke-linecap:round; stroke-linejoin:round; }
+    .mark .warm { stroke:var(--gold); }
+    .pattern-art { display:block; width:100%; height:clamp(230px,31vw,340px); margin:12px auto 0; }
+    footer { margin:0 clamp(24px,4vw,64px); padding:26px 0 34px; border-top:1px solid #263129; display:flex; justify-content:space-between; align-items:center; gap:24px; }
+    footer p { margin:0; font-size:13px; line-height:1.7; color:var(--mist); letter-spacing:.04em; }
+    .status { display:flex; align-items:center; gap:10px; }
+    .status::before { content:''; flex:0 0 4px; height:4px; border-radius:50%; background:var(--gold); }
+    @media (min-width:1600px) { .hero-art { object-fit:contain; } }
+    @media (max-width:600px) {
+      .hero { height:90svh; min-height:640px; max-height:900px; }
+      .hero-art { left:0; transform:none; width:100%; mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent); height:calc(100% - 205px); object-fit:cover; object-position:50% 100%; }
+      .masthead { padding-top:24px; }
+      .eyebrow { font-size:11px; letter-spacing:.12em; }
+      .identity { padding-top:24px; }
+      h1 { max-width:350px; font-size:clamp(30px,9vw,46px); line-height:1.3; letter-spacing:.14em; }
+      .tagline { max-width:260px; margin:18px auto 0; line-height:1.7; letter-spacing:.07em; }
+      .marks { gap:16px; margin-bottom:48px; }
+      .mark { width:28px; height:28px; }
+      .pattern { padding-top:48px; padding-bottom:40px; }
+      footer { align-items:flex-start; flex-direction:column; gap:10px; }
+    }
+    @media (prefers-reduced-motion:no-preference) { html { scroll-behavior:smooth; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="wordmark">
+      <img class="hero-art" src="orchard-night.png" width="1536" height="1024" alt="A solitary orchard tree under a dark sky, its leaves edged with silver and amber light." fetchpriority="high" decoding="async">
+      <div class="masthead">
+        <svg class="sigil" viewBox="0 0 48 48" aria-hidden="true"><path d="M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5"/></svg>
+        <p class="eyebrow">An experimental game for iOS</p>
+      </div>
+      <div class="identity">
+        <h1 id="wordmark">Fractal Orchard</h1>
+        <p class="tagline">Small choices. Larger patterns.</p>
+      </div>
+      <a class="scroll-link" href="#pattern" aria-label="Explore the abstract artwork">Explore<span aria-hidden="true"></span></a>
+    </section>
+    <section class="pattern" id="pattern" aria-labelledby="pattern-title">
+  <div class="marks" aria-hidden="true">
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="A circle with an opening.">
+      <path d="M33 9 a18 18 0 1 0 9 13"></path>
+    </svg>
+
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="Concentric rings.">
+      <circle cx="24" cy="24" r="18"></circle>
+      <circle cx="24" cy="24" r="11"></circle>
+      <circle class="warm" cx="24" cy="24" r="4"></circle>
+    </svg>
+
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="A line that divides, and divides again.">
+      <path d="M24 44 L24 30"></path>
+      <path d="M24 30 L13 19 M24 30 L35 19"></path>
+      <path class="warm" d="M13 19 L7 11 M13 19 L18 10 M35 19 L30 10 M35 19 L41 11"></path>
+    </svg>
+
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="A narrow opening in a wall.">
+      <path d="M6 43 L6 12 L42 12 L42 43"></path>
+      <rect x="19" y="22" width="10" height="21"></rect>
+      <circle class="warm" cx="27" cy="33" r="1.1"></circle>
+    </svg>
+
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="Points joined into a pattern.">
+      <path d="M24 6 L40 18 L34 38 L14 38 L8 18 Z"></path>
+      <path class="warm" d="M24 6 L34 38 M24 6 L14 38 M40 18 L14 38 M8 18 L34 38"></path>
+    </svg>
+
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="A point with arcs spreading from it.">
+      <circle class="warm" cx="24" cy="24" r="2"></circle>
+      <path d="M24 12 a12 12 0 0 1 0 24"></path>
+      <path d="M24 5 a19 19 0 0 1 0 38"></path>
+    </svg>
+  </div>
+      <h2 id="pattern-title">Something reaches out</h2>
+      <canvas class="pattern-art" id="constellation" role="img" aria-label="An abstract constellation of silver and amber points, connected by delicate lines.">An abstract constellation of silver and amber points.</canvas>
+    </section>
+  </main>
+  <footer>
+    <p>Fractal Orchard</p>
+    <p class="status">Closed testing · by invitation</p>
+  </footer>
+  <script>
+    (() => {
+      'use strict';
+      const canvas = document.getElementById('constellation');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let reducedMotion = preference.matches;
+      let visible = false;
+      let frame = 0;
+      let time = 0;
+      let last = 0;
+      let width = 1;
+      let height = 1;
+      const pointer = { x:0, y:0, live:false };
+      // Stable ornamental geometry, independent of any game content.
+      const points = [];
+      for (let ring = 1; ring <= 4; ring++) {
+        const count = ring * 8;
+        for (let n = 0; n < count; n++) {
+          const angle = n / count * Math.PI * 2 + ring * .34;
+          points.push({ x:Math.cos(angle)*ring/4, y:Math.sin(angle)*ring/4, phase:angle+ring });
+        }
+      }
+      function paint() {
+        ctx.clearRect(0,0,width,height);
+        const radius = Math.min(width*.44,height*.98);
+        const scaleY = .42;
+        const probeX = pointer.live ? pointer.x : width/2 + Math.cos(time*.0003)*radius*.55;
+        const probeY = pointer.live ? pointer.y : height/2 + Math.sin(time*.0004)*radius*.22;
+        const positions = points.map(p => ({x:width/2+p.x*radius,y:height/2+p.y*radius*scaleY,phase:p.phase}));
+        for (let i=0;i<positions.length;i++) {
+          const a=positions[i];
+          const proximity=Math.max(0,1-Math.hypot(a.x-probeX,a.y-probeY)/(radius*.65));
+          for (let j=i+1;j<positions.length;j++) {
+            const b=positions[j];
+            const distance=Math.hypot(a.x-b.x,a.y-b.y);
+            if (distance>radius*.32) continue;
+            ctx.strokeStyle=`rgba(201,164,104,${.05+proximity*.3})`;
+            ctx.lineWidth=.65;
+            ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+          }
+          const glimmer=.7+.3*Math.sin(time*.0008+a.phase);
+          ctx.fillStyle=`rgba(207,216,207,${.3+glimmer*.25+proximity*.4})`;
+          ctx.beginPath();ctx.arc(a.x,a.y,1+proximity*1.1,0,Math.PI*2);ctx.fill();
+        }
+      }
+      function tick(stamp) {
+        frame=0;
+        if (reducedMotion || !visible || document.hidden) return;
+        if (!last) last=stamp;
+        if (stamp-last>=1000/30) { time+=Math.min(stamp-last,80);last=stamp;paint(); }
+        frame=requestAnimationFrame(tick);
+      }
+      function sync() {
+        cancelAnimationFrame(frame);frame=0;last=0;
+        if (!reducedMotion && visible && !document.hidden) frame=requestAnimationFrame(tick);
+        paint();
+      }
+      function resize() {
+        const rect=canvas.getBoundingClientRect();
+        width=rect.width;height=rect.height;
+        const dpr=Math.min(window.devicePixelRatio||1,3);
+        canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);paint();
+      }
+      canvas.addEventListener('pointermove',event=>{
+        if(reducedMotion)return;
+        const rect=canvas.getBoundingClientRect();
+        pointer.x=event.clientX-rect.left;pointer.y=event.clientY-rect.top;pointer.live=true;
+      });
+      canvas.addEventListener('pointerleave',()=>{pointer.live=false;});
+      canvas.addEventListener('pointerup',event=>{if(event.pointerType==='touch')pointer.live=false;});
+      preference.addEventListener('change',event=>{reducedMotion=event.matches;pointer.live=false;sync();});
+      document.addEventListener('visibilitychange',sync);
+      new ResizeObserver(resize).observe(canvas);
+      new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();}).observe(canvas);
+      resize();sync();
+    })();
+  </script>
+</body>
+</html>
