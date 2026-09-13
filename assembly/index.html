@@ -44,7 +44,7 @@
   <main class="stage">
     <figure class="print" style="margin:0">
       <div class="photo" aria-label="A faded photograph of seven orchard workers standing in a row. Every face has been scratched out.">
-        <!-- Codex: drop the generated photograph here as assembly.jpg, then re-map HEADS below to the faces. -->
+        <!-- Original generated photograph; face centers measured against this 3:2 image. -->
         <img data-photo src="assembly.jpg" alt="" hidden>
         <canvas data-fallback aria-hidden="true"></canvas>
         <svg viewBox="0 0 300 200" aria-hidden="true" data-overlay></svg>
@@ -59,8 +59,8 @@
       const NS = 'http://www.w3.org/2000/svg';
       const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); return e; };
 
-      // Head positions in the 300 x 200 photo space. Re-map these when assembly.jpg replaces the placeholder.
-      const HEADS = [[46, 71], [81, 67], [116, 74], [151, 69], [186, 72], [221, 65], [256, 70]];
+      // Face centers measured in the source 1536 x 1024 image, scaled to 300 x 200.
+      const HEADS = [[39.5, 71.3], [78.9, 70.5], [120.1, 72.5], [153.7, 76.0], [187.5, 70.9], [220.9, 72.1], [256.8, 70.9]];
 
       // The faces from the front page's marks, plus one that is barely a face at all.
       const FACES = [
