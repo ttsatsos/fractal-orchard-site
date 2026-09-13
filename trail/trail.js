@@ -100,7 +100,7 @@
     document.querySelectorAll('svg[data-sigil]').forEach(svg => renderSigil(svg, newIndex));
   }
 
-  // ── decoded letters, shown briefly when a piece is found ───────────
+  // ── decoded letters, shown when a piece is found, until the next tap ─
   function announce(letters, note) {
     const strip = document.createElement('div');
     strip.className = 'decoded';
@@ -122,9 +122,68 @@
       p.textContent = note;
       strip.append(p);
     }
+    document.querySelectorAll('.decoded').forEach(old => old.remove());
     document.body.append(strip);
     requestAnimationFrame(() => strip.classList.add('shown'));
-    setTimeout(() => { strip.classList.remove('shown'); setTimeout(() => strip.remove(), 900); }, 6500);
+    // Stays until the visitor taps somewhere (or leaves), so the letters cannot slip by unseen.
+    const dismiss = () => {
+      document.removeEventListener('pointerdown', dismiss, true);
+      strip.classList.remove('shown');
+      setTimeout(() => strip.remove(), 900);
+    };
+    setTimeout(() => document.addEventListener('pointerdown', dismiss, true), 900);
+  }
+
+  // ── the page itself acknowledges: a glow on the artifact, and a quiet note ─
+  function recordedNote(animate) {
+    const stage = document.querySelector('.stage');
+    if (!stage || stage.querySelector('.recorded')) return;
+    const p = document.createElement('p');
+    p.className = animate && !reduced() ? 'recorded recorded-new' : 'recorded';
+    p.textContent = 'Recorded.';
+    const caption = stage.querySelector('.caption');
+    if (caption) caption.after(p); else stage.append(p);
+  }
+  function glowArtifact() {
+    const artifact = document.querySelector('.stage > *');
+    if (!artifact || reduced()) return;
+    artifact.classList.remove('record-glow'); void artifact.offsetWidth; artifact.classList.add('record-glow');
+  }
+
+  // ── the mark comes forward, takes its new stroke, and returns to the corner ─
+  function reveal(index, done) {
+    const home = document.querySelector('.home');
+    if (reduced() || !home) { renderAllSigils(); done(); return; }
+    const veil = document.createElement('div');
+    veil.className = 'reveal';
+    veil.setAttribute('aria-hidden', 'true');
+    const big = el('svg', { class: 'sigil reveal-sigil' });
+    veil.append(big);
+    document.body.append(veil);
+    renderSigil(big, index);
+    home.classList.add('awaiting');
+    requestAnimationFrame(() => veil.classList.add('shown'));
+
+    let finished = false;
+    const land = () => {
+      if (finished) return;
+      finished = true;
+      const from = big.getBoundingClientRect(), to = home.getBoundingClientRect();
+      const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+      const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+      big.style.transform = `translate(${dx}px, ${dy}px) scale(${to.width / from.width})`;
+      veil.classList.add('landing');
+      setTimeout(() => {
+        veil.remove();
+        home.classList.remove('awaiting');
+        renderAllSigils();
+        home.classList.add('arrived');
+        setTimeout(() => home.classList.remove('arrived'), 1600);
+        done();
+      }, 750);
+    };
+    veil.addEventListener('pointerdown', land);
+    setTimeout(land, 2900);
   }
 
   function award(id, note) {
@@ -132,8 +191,9 @@
     state.pieces.add(id);
     LETTERS[id].forEach(letter => state.letters.add(letter));
     save();
-    renderAllSigils(PIECES.indexOf(id));
-    announce(LETTERS[id], note);
+    glowArtifact();
+    recordedNote(true);
+    setTimeout(() => reveal(PIECES.indexOf(id), () => announce(LETTERS[id], note)), reduced() ? 0 : 650);
     document.dispatchEvent(new CustomEvent('record:piece', { detail: { id } }));
     return true;
   }
@@ -263,6 +323,8 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     renderAllSigils();
+    const piece = document.body.dataset.piece;
+    if (piece && state.pieces.has(piece)) recordedNote(false);
     document.querySelectorAll('canvas[data-sky]').forEach(c => sky(c));
   });
 })();

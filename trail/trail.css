@@ -43,6 +43,29 @@ button { font:inherit; color:inherit; }
 .decoded .pair::after { content:''; }
 .decoded .note { color:var(--mist); letter-spacing:.2em; }
 
+.decoded { cursor:default; }
+
+/* the page acknowledges a finished piece */
+.recorded { margin:18px auto 0; text-align:center; font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); opacity:.85; }
+.recorded-new { animation:recorded-in 1.6s .2s ease both; }
+@keyframes recorded-in { from { opacity:0; letter-spacing:.6em; } to { opacity:.85; letter-spacing:.32em; } }
+.record-glow { animation:record-glow 2.2s ease; }
+@keyframes record-glow { 0%,100% { filter:none; } 35% { filter:drop-shadow(0 0 18px rgba(201,164,104,.75)) brightness(1.08); } }
+
+/* the mark comes forward to take its stroke, then returns to the corner */
+.reveal { position:fixed; inset:0; z-index:20; display:grid; place-items:center; background:rgba(8,14,12,0); transition:background .45s ease; cursor:pointer; }
+.reveal.shown { background:rgba(8,14,12,.78); }
+.reveal.landing { background:rgba(8,14,12,0); transition:background .7s ease; }
+.reveal-sigil { width:min(46vw,190px); height:min(46vw,190px); opacity:0; transform:scale(.82); transition:opacity .45s ease, transform .45s ease; }
+.reveal.shown .reveal-sigil { opacity:1; transform:none; }
+.reveal.landing .reveal-sigil { transition:transform .72s cubic-bezier(.6,0,.3,1), opacity .72s ease; }
+.reveal-sigil .seg-missing { stroke:rgba(201,164,104,.5); stroke-width:.9; stroke-dasharray:.5 1.8; }
+.reveal-sigil .seg-found { stroke-width:1.1; }
+.reveal-sigil .seg-new { animation:seg-draw 1.8s .35s ease forwards, seg-glow 2.6s .35s ease; }
+.home.awaiting { opacity:0; }
+.home { transition:opacity .3s ease; }
+.home.arrived .sigil { animation:seg-glow 1.6s ease; }
+
 @media (prefers-reduced-motion:reduce) {
   body { transition:none; }
   .decoded { transition:none; }
