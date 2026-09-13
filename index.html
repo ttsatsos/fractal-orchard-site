@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="trail/trail.css">
+  <script src="trail/trail.js"></script>
   <style>
     :root { color-scheme: dark; --night:#080e0c; --bone:#e7eae6; --mist:#a5b0a9; --gold:#c9a468; }
     * { box-sizing:border-box; }
@@ -54,6 +56,20 @@
     .mark .face, .mark .glyph { opacity:0; }
     .mark .face path, .mark .face circle { stroke-dasharray:1; stroke-dashoffset:1; }
 
+    /* The hidden trail's front doors. */
+    .sigil-door { display:block; width:30px; height:30px; cursor:pointer; }
+    .sigil-door .seg-missing { stroke:rgba(201,164,104,.45); }
+    .sigil-door:hover .seg-missing { stroke:rgba(201,164,104,.75); }
+    .sigil-door.complete { animation:sigil-breathe 3.4s ease-in-out infinite; }
+    @keyframes sigil-breathe { 0%,100% { filter:none; } 50% { filter:drop-shadow(0 0 6px rgba(201,164,104,.8)); } }
+    .mark[data-door] { cursor:pointer; }
+    .mark[data-door]:focus-visible { outline:1px solid var(--gold); outline-offset:8px; border-radius:50%; }
+    .pattern-frame { position:relative; }
+    .hidden-door { position:absolute; right:16%; top:22%; width:20px; height:20px; display:block; opacity:.14; transition:opacity .6s ease; animation:faint 11s ease-in-out infinite; }
+    .hidden-door svg { width:100%; height:100%; fill:none; stroke:var(--gold); stroke-width:3; stroke-linecap:round; overflow:visible; }
+    .hidden-door:hover, .hidden-door:focus-visible { opacity:.95; animation:none; }
+    @keyframes faint { 0%,80%,100% { opacity:.12; } 88% { opacity:.6; } }
+    @media (prefers-reduced-motion:reduce) { .hidden-door { animation:none; opacity:.3; } .sigil-door.complete { animation:none; filter:drop-shadow(0 0 5px rgba(201,164,104,.7)); } }
     @media (min-width:1600px) { .hero-art { object-fit:contain; } }
     @media (max-width:600px) {
       .hero { height:90svh; min-height:640px; max-height:900px; }
@@ -79,7 +95,7 @@
       <img class="hero-art" src="orchard-night.png" width="1536" height="1024" alt="A solitary orchard tree under a dark sky, its leaves edged with silver and amber light." fetchpriority="high" decoding="async">
       <canvas class="hero-stars" id="hero-stars" aria-hidden="true"></canvas>
       <div class="masthead">
-        <svg class="sigil" viewBox="0 0 48 48" aria-hidden="true"><path d="M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5"/></svg>
+        <a class="sigil-door" href="ledger/" aria-label="The orchard's mark" data-sigil-door><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
         <p class="eyebrow">An experimental game for iOS</p>
       </div>
       <div class="identity">
@@ -89,8 +105,8 @@
       <a class="scroll-link" href="#pattern" aria-label="Explore the abstract artwork">Explore<span aria-hidden="true"></span></a>
     </section>
     <section class="pattern" id="pattern" aria-labelledby="pattern-title">
-  <div class="marks" aria-hidden="true">
-    <svg class="mark" viewBox="0 0 48 48">
+  <div class="marks">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" data-decoy>
       <g class="form"><path d="M33 9 a18 18 0 1 0 9 13"></path></g>
       <g class="face">
         <path pathLength="1" d="M33 9 a18 18 0 1 0 9 13"></path>
@@ -100,7 +116,7 @@
       </g>
     </svg>
 
-    <svg class="mark" viewBox="0 0 48 48">
+    <svg class="mark" viewBox="0 0 48 48" data-door="growth/" role="link" tabindex="0" aria-label="Rings">
       <g class="form">
         <circle cx="24" cy="24" r="18"></circle>
         <circle cx="24" cy="24" r="11"></circle>
@@ -116,7 +132,7 @@
       </g>
     </svg>
 
-    <svg class="mark" viewBox="0 0 48 48">
+    <svg class="mark" viewBox="0 0 48 48" data-door="plate-vii/" role="link" tabindex="0" aria-label="A line that divides">
       <g class="form">
         <path d="M24 44 L24 30"></path>
         <path d="M24 30 L13 19 M24 30 L35 19"></path>
@@ -131,7 +147,7 @@
       </g>
     </svg>
 
-    <svg class="mark" viewBox="0 0 48 48">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" data-decoy>
       <g class="form">
         <path d="M6 43 L6 12 L42 12 L42 43"></path>
         <rect x="19" y="22" width="10" height="21"></rect>
@@ -145,7 +161,7 @@
       </g>
     </svg>
 
-    <svg class="mark" viewBox="0 0 48 48">
+    <svg class="mark" viewBox="0 0 48 48" data-door="chart/" role="link" tabindex="0" aria-label="Joined points">
       <g class="form">
         <path d="M24 6 L40 18 L34 38 L14 38 L8 18 Z"></path>
         <path class="warm" d="M24 6 L34 38 M24 6 L14 38 M40 18 L14 38 M8 18 L34 38"></path>
@@ -159,7 +175,7 @@
       </g>
     </svg>
 
-    <svg class="mark" viewBox="0 0 48 48">
+    <svg class="mark" viewBox="0 0 48 48" data-door="frequency/" role="link" tabindex="0" aria-label="Arcs">
       <g class="form">
         <circle class="warm" cx="24" cy="24" r="2"></circle>
         <path d="M24 12 a12 12 0 0 1 0 24"></path>
@@ -173,7 +189,10 @@
     </svg>
   </div>
       <h2 id="pattern-title">Something reaches out</h2>
-      <canvas class="pattern-art" id="constellation" role="img" aria-label="An abstract constellation of silver and amber points, connected by delicate lines.">An abstract constellation of silver and amber points.</canvas>
+      <div class="pattern-frame">
+        <canvas class="pattern-art" id="constellation" role="img" aria-label="An abstract constellation of silver and amber points, connected by delicate lines.">An abstract constellation of silver and amber points.</canvas>
+        <a class="hidden-door" href="assembly/" aria-label="A faint mark" data-leave><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 34 a14 14 0 1 1 22 -4"/><path d="M24 14 L24 34"/></svg></a>
+      </div>
     </section>
   </main>
   <footer>
@@ -420,6 +439,7 @@
           turbulence: defs.querySelector('feTurbulence'),
           displace: defs.querySelector('feDisplacementMap'),
           faceParts: Array.from(face.querySelectorAll('path,circle')),
+          door: svg.dataset.door || '', decoy: svg.hasAttribute('data-decoy'), refuseUntil: 0,
           p: 0, target: 0, lastGlyph: 0, nextTwitch: 0, twitchUntil: 0, closeTimer: 0, hovered: false
         };
       }).filter(Boolean);
@@ -456,6 +476,7 @@
           }
           if (stamp < st.twitchUntil) warp += 5;
         }
+        if (stamp < st.refuseUntil) warp += 9 * Math.abs(Math.sin(stamp * .05));
         st.displace.setAttribute('scale', warp.toFixed(2));
       }
 
@@ -471,7 +492,7 @@
             st.p = st.target > st.p ? Math.min(st.target, st.p + step) : Math.max(st.target, st.p - step);
           }
           render(st, stamp);
-          if (st.p !== st.target || (st.p === 1 && !preference.matches)) active = true;
+          if (st.p !== st.target || (st.p === 1 && !preference.matches) || stamp < st.refuseUntil) active = true;
         }
         if (active) frame = requestAnimationFrame(tick);
         else lastStamp = 0;
@@ -479,6 +500,7 @@
       function wake() { if (!frame) frame = requestAnimationFrame(tick); }
       function open(st) { st.target = 1; wake(); }
       function close(st) { st.target = 0; wake(); }
+      function refuse(st) { st.refuseUntil = performance.now() + 480; open(st); clearTimeout(st.closeTimer); st.closeTimer = setTimeout(() => { if (!st.hovered) close(st); }, 900); wake(); }
 
       for (const st of states) {
         st.svg.addEventListener('pointerenter', event => {
@@ -489,13 +511,27 @@
           if (event.pointerType === 'touch') return;
           st.hovered = false; close(st);
         });
-        // No hover on a phone: a tap opens a mark for a few seconds.
+        // No hover on a phone: the first tap shows the face, a second tap while it looks back goes through.
         st.svg.addEventListener('pointerdown', event => {
+          st.lastPointer = event.pointerType;
           if (event.pointerType !== 'touch') return;
           clearTimeout(st.closeTimer);
-          if (st.target === 1) { close(st); return; }
+          if (st.target === 1) {
+            if (st.door && st.p > .85) { window.Record.go(st.door); return; }
+            if (st.decoy) { refuse(st); return; }
+            close(st); return;
+          }
           open(st);
           st.closeTimer = setTimeout(() => close(st), 2600);
+        });
+        st.svg.addEventListener('click', () => {
+          if (st.lastPointer === 'touch') return;
+          if (st.door) { open(st); setTimeout(() => window.Record.go(st.door), preference.matches ? 0 : 300); }
+          else if (st.decoy) refuse(st);
+        });
+        st.svg.addEventListener('keydown', event => {
+          if (!st.door || (event.key !== 'Enter' && event.key !== ' ')) return;
+          event.preventDefault(); open(st); window.Record.go(st.door);
         });
       }
 
@@ -518,6 +554,17 @@
         .observe(document.querySelector('.marks'));
       document.addEventListener('visibilitychange', scheduleAmbient);
       preference.addEventListener('change', () => { for (const st of states) { st.target = 0; } wake(); scheduleAmbient(); });
+    })();
+
+    // ── the corner mark: first door, and the last one once the record is whole ──
+    (() => {
+      'use strict';
+      const door = document.querySelector('[data-sigil-door]');
+      if (!door || !window.Record) return;
+      if (window.Record.complete()) { door.setAttribute('href', 'unrecorded/'); door.classList.add('complete'); }
+      const leave = event => { event.preventDefault(); window.Record.go(event.currentTarget.getAttribute('href')); };
+      door.addEventListener('click', leave);
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', leave));
     })();
   </script>
 </body>

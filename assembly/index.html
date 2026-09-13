@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080e0c">
+  <title>Row VII</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&family=La+Belle+Aurore&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../trail/trail.css">
+  <script src="../trail/trail.js"></script>
+  <style>
+    .print { position:relative; width:min(94vw,780px); padding:clamp(10px,2vw,18px) clamp(10px,2vw,18px) clamp(34px,6vw,52px); background:#d8ccb0;
+      box-shadow:0 30px 80px rgba(0,0,0,.7); transform:rotate(-.9deg);
+      clip-path:polygon(0 0, 100% 0, 100% 86%, 97% 92%, 98.5% 100%, 0 100%, 0 12%, 1.4% 6%); }
+    .photo { position:relative; aspect-ratio:3/2; overflow:hidden; background:#5d4a33; }
+    .photo img, .photo canvas, .photo svg { position:absolute; inset:0; width:100%; height:100%; }
+    .photo img { object-fit:cover; filter:sepia(.55) contrast(.92) brightness(.95); }
+    .photo svg { overflow:visible; }
+    .scratch { cursor:pointer; }
+    .scratch path { fill:none; stroke:rgba(236,226,200,.92); stroke-width:1.1; stroke-linecap:round; }
+    .scratch .hit { fill:transparent; stroke:none; }
+    .scratch:hover path { stroke:rgba(255,246,220,1); }
+    .scratch.gone { pointer-events:none; }
+    .scratch.gone path { transition:opacity .9s ease; opacity:0; }
+    .revealed path, .revealed circle { fill:none; stroke:rgba(244,236,214,.95); stroke-width:3; stroke-linecap:round; stroke-linejoin:round;
+      stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset 1.4s ease; }
+    .revealed.on path, .revealed.on circle { stroke-dashoffset:0; }
+    .inscription { position:absolute; left:0; right:0; bottom:clamp(6px,1.4vw,12px); text-align:center; font-family:'La Belle Aurore',cursive;
+      font-size:clamp(14px,2.4vw,20px); color:rgba(40,32,22,.8); }
+    .inscription .shape { font-family:'Jost',sans-serif; letter-spacing:.3em; font-size:.8em; color:rgba(40,32,22,.9); opacity:0; transition:opacity 1.2s ease; }
+    .inscription .shape.on { opacity:1; }
+  </style>
+</head>
+<body>
+  <canvas class="sky" data-sky aria-hidden="true"></canvas>
+  <div class="bar">
+    <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
+    <p class="folio">Row VII</p>
+  </div>
+  <main class="stage">
+    <figure class="print" style="margin:0">
+      <div class="photo" aria-label="A faded photograph of seven orchard workers standing in a row. Every face has been scratched out.">
+        <!-- Codex: drop the generated photograph here as assembly.jpg, then re-map HEADS below to the faces. -->
+        <img data-photo src="assembly.jpg" alt="" hidden>
+        <canvas data-fallback aria-hidden="true"></canvas>
+        <svg viewBox="0 0 300 200" aria-hidden="true" data-overlay></svg>
+      </div>
+      <figcaption class="inscription">Row VII, after the grafting &nbsp;<span class="shape" data-shape>2 · 4 · 4</span></figcaption>
+    </figure>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const R = window.Record;
+      const NS = 'http://www.w3.org/2000/svg';
+      const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); return e; };
+
+      // Head positions in the 300 x 200 photo space. Re-map these when assembly.jpg replaces the placeholder.
+      const HEADS = [[46, 71], [81, 67], [116, 74], [151, 69], [186, 72], [221, 65], [256, 70]];
+
+      // The faces from the front page's marks, plus one that is barely a face at all.
+      const FACES = [
+        ['M33 9 a18 18 0 1 0 9 13', 'M16.5 22 L21.5 21.4', 'c30 21.5 1', 'M20 32.5 Q24 31 28 32.5'],
+        ['c24 24 18', 'c17 21 3.6', 'c31 21 3.6', 'c24 33 2'],
+        ['M24 5 C35 5 38 18 37 27 C36 38 30 44 24 44 C18 44 12 38 11 27 C10 18 13 5 24 5', 'M24 5 L24 44', 'M15 21 L20 21', 'M28 19 L33 23'],
+        ['M29 22 C23 22 21 27 21 31 C21 36 24 40 29 40', 'M29 22 L29 43', 'c25.5 29 1.2'],
+        ['M24 6 L40 18 L34 38 L14 38 L8 18 Z', 'M14 20 L20 20 L17 25 Z', 'M28 20 L34 20 L31 25 Z', 'M19 31 L29 31'],
+        ['M20 6 C28 6 33 12 33 18 L36 23 L33 24 C33 26 34 27 33 29 C32 30 33 32 32 34 C31 37 27 38 24 37 L23 43', 'c27 16 1.1'],
+        ['c24 24 17', 'c30 20 1.3']
+      ];
+
+      const overlay = document.querySelector('[data-overlay]');
+      const done = R.has('assembly');
+      let revealed = 0;
+      let s = 7331; const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+
+      HEADS.forEach(([hx, hy], i) => {
+        // the face, waiting under the scratches
+        const face = el('g', { class: 'revealed', transform: `translate(${hx - 11} ${hy - 11}) scale(.46)` });
+        for (const part of FACES[i]) {
+          if (part.startsWith('c')) { const [cx, cy, r] = part.slice(1).split(' '); face.append(el('circle', { cx, cy, r, pathLength: 1 })); }
+          else face.append(el('path', { d: part, pathLength: 1 }));
+        }
+        overlay.append(face);
+        // the scratches: someone went over this face again and again
+        const scratch = el('g', { class: 'scratch', role: 'button', tabindex: '0', 'aria-label': 'A scratched-out face' });
+        scratch.append(el('circle', { class: 'hit', cx: hx, cy: hy, r: 14 }));
+        for (let k = 0; k < 9; k++) {
+          const a = rand() * Math.PI, len = 9 + rand() * 9;
+          const x1 = hx - Math.cos(a) * len, y1 = hy - Math.sin(a) * len * .9, x2 = hx + Math.cos(a) * len, y2 = hy + Math.sin(a) * len * .9;
+          const jx = (rand() - .5) * 4, jy = (rand() - .5) * 4;
+          scratch.append(el('path', { d: `M${x1.toFixed(1)} ${y1.toFixed(1)} Q${(hx + jx).toFixed(1)} ${(hy + jy).toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}` }));
+        }
+        overlay.append(scratch);
+        const open = () => {
+          if (scratch.classList.contains('gone')) return;
+          scratch.classList.add('gone');
+          requestAnimationFrame(() => face.classList.add('on'));
+          revealed++;
+          if (revealed === HEADS.length) {
+            document.querySelector('[data-shape]').classList.add('on');
+            setTimeout(() => R.award('assembly', '2 · 4 · 4'), 900);
+          }
+        };
+        scratch.addEventListener('click', open);
+        scratch.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+        if (done) { scratch.classList.add('gone'); face.classList.add('on'); }
+      });
+      if (done) document.querySelector('[data-shape]').classList.add('on');
+
+      // The photograph. Prefer the real print; otherwise develop a stand-in: a faded row of figures.
+      const img = document.querySelector('[data-photo]');
+      const fallback = document.querySelector('[data-fallback]');
+      img.addEventListener('load', () => { img.hidden = false; fallback.remove(); });
+      function develop() {
+        if (!fallback.isConnected) return;
+        const rect = fallback.getBoundingClientRect();
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        fallback.width = Math.round(rect.width * dpr); fallback.height = Math.round(rect.height * dpr);
+        const g = fallback.getContext('2d'); const W = fallback.width, H = fallback.height, k = W / 300;
+        let q = 4242; const r = () => (q = (q * 16807) % 2147483647) / 2147483647;
+        const sky = g.createLinearGradient(0, 0, 0, H);
+        sky.addColorStop(0, '#cbb48c'); sky.addColorStop(.55, '#a58d67'); sky.addColorStop(.62, '#7a6446'); sky.addColorStop(1, '#4e3f2b');
+        g.fillStyle = sky; g.fillRect(0, 0, W, H);
+        g.filter = `blur(${2.2 * dpr}px)`;
+        for (let t = 0; t < 14; t++) {          // orchard rows behind
+          const x = r() * W, y = H * (.48 + r() * .06), rad = (18 + r() * 22) * k;
+          g.fillStyle = `rgba(70,56,38,${.35 + r() * .25})`; g.beginPath(); g.ellipse(x, y, rad * 1.3, rad, 0, 0, Math.PI * 2); g.fill();
+        }
+        HEADS.forEach(([hx, hy]) => {           // the seven: neck, shoulders, coat, legs
+          const x = hx * k, sh = (24 + r() * 6) * k / 2, hip = (18 + r() * 4) * k / 2, neck = (hy + 8) * k;
+          const shoulder = (hy + 15) * k, waist = (hy + 58) * k, foot = 178 * k, stride = (2 + r() * 2) * k;
+          g.fillStyle = `rgba(52,40,26,${.82 + r() * .1})`;
+          g.beginPath();
+          g.moveTo(x - 3 * k, neck); g.lineTo(x + 3 * k, neck);
+          g.quadraticCurveTo(x + sh * .7, shoulder - 3 * k, x + sh, shoulder + 2 * k);
+          g.lineTo(x + sh * .95, waist); g.lineTo(x + hip, waist + 8 * k);
+          g.lineTo(x + hip * .8, foot); g.lineTo(x + stride, foot); g.lineTo(x, waist + 22 * k);
+          g.lineTo(x - stride, foot); g.lineTo(x - hip * .8, foot); g.lineTo(x - hip, waist + 8 * k);
+          g.lineTo(x - sh * .95, waist); g.lineTo(x - sh, shoulder + 2 * k);
+          g.quadraticCurveTo(x - sh * .7, shoulder - 3 * k, x - 3 * k, neck);
+          g.closePath(); g.fill();
+          g.fillStyle = 'rgba(96,78,54,.95)'; g.beginPath(); g.arc(hx * k, hy * k, 8.5 * k, 0, Math.PI * 2); g.fill();
+          if (r() < .5) { g.fillStyle = 'rgba(45,34,22,.9)'; g.beginPath(); g.ellipse(hx * k, (hy - 7) * k, 13 * k, 3 * k, 0, 0, Math.PI * 2); g.fill(); }
+        });
+        g.filter = 'none';
+        const noise = g.getImageData(0, 0, W, H);   // grain
+        for (let i = 0; i < noise.data.length; i += 4) {
+          const n = (r() - .5) * 38;
+          noise.data[i] += n; noise.data[i + 1] += n; noise.data[i + 2] += n * .8;
+        }
+        g.putImageData(noise, 0, 0);
+        g.strokeStyle = 'rgba(240,228,200,.35)'; g.lineWidth = dpr;   // old scratches in the emulsion
+        for (let i = 0; i < 26; i++) { const x = r() * W; g.beginPath(); g.moveTo(x, r() * H); g.lineTo(x + (r() - .5) * 40, r() * H); g.stroke(); }
+        const leak = g.createRadialGradient(W * .92, H * .08, 0, W * .92, H * .08, W * .35);
+        leak.addColorStop(0, 'rgba(255,230,180,.35)'); leak.addColorStop(1, 'rgba(255,230,180,0)');
+        g.fillStyle = leak; g.fillRect(0, 0, W, H);
+        const vig = g.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, W * .62);
+        vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(20,12,4,.62)');
+        g.fillStyle = vig; g.fillRect(0, 0, W, H);
+      }
+      new ResizeObserver(develop).observe(fallback);
+
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));
+    })();
+  </script>
+</body>
+</html>

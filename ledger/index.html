@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080e0c">
+  <title>fol. 23</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Jost:wght@300;400&family=La+Belle+Aurore&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../trail/trail.css">
+  <script src="../trail/trail.js"></script>
+  <style>
+    .ledger { width:min(92vw,620px); padding:34px 34px 40px 74px; transform:rotate(-1.1deg); font-family:'IM Fell English',Georgia,serif; }
+    .ledger-head { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1.5px solid rgba(43,36,24,.55); padding-bottom:8px; margin-bottom:6px;
+      font-size:15px; letter-spacing:.18em; text-transform:uppercase; }
+    .ledger-head span:last-child { font-style:italic; text-transform:none; letter-spacing:.04em; }
+    .cols, .entries li { display:grid; grid-template-columns:7.2em 2.6em 1fr; gap:0 12px; }
+    .cols { font-size:11px; letter-spacing:.2em; text-transform:uppercase; opacity:.7; padding:4px 0 6px; border-bottom:1px solid rgba(43,36,24,.35); }
+    .entries { list-style:none; margin:0; padding:0; }
+    .entries li { align-items:baseline; min-height:2.35em; padding:6px 0 2px; border-bottom:1px solid rgba(94,120,140,.28); }
+    .entries .d, .entries .r, .entries .e { font-family:'La Belle Aurore',cursive; font-size:17px; line-height:1.35; color:#2a2217; }
+    .entries .r { text-align:center; }
+    .entries s { text-decoration-thickness:1.5px; text-decoration-color:rgba(30,24,16,.85); }
+    .entries .legible .e { color:#141009; }
+    .margin { position:absolute; left:14px; top:96px; bottom:40px; width:46px; display:flex; flex-direction:column; justify-content:space-around; align-items:center;
+      border-right:1px solid rgba(160,60,50,.35); }
+    .margin .note { position:relative; color:#3a2e1f; }
+    .margin .note .glyph-mark { width:26px; height:26px; stroke-width:3; }
+    .margin .pencil { position:absolute; left:29px; top:2px; font-family:'La Belle Aurore',cursive; font-size:17px; color:rgba(55,55,60,.9); white-space:nowrap; }
+    .blot { position:absolute; right:26px; bottom:22px; width:58px; height:48px; padding:0; border:0; background:none; cursor:pointer;
+      transition:transform .5s ease, opacity .6s ease, filter .4s ease; }
+    .blot svg { width:100%; height:100%; overflow:visible; }
+    .blot:hover { filter:drop-shadow(0 0 6px rgba(201,164,104,.7)); }
+    .blot.lifted { opacity:0; pointer-events:none; }
+    @media (max-width:600px) {
+      .ledger { padding:26px 16px 34px 52px; }
+      .cols, .entries li { grid-template-columns:5.6em 1.8em 1fr; gap:0 8px; }
+      .entries .d, .entries .r, .entries .e { font-size:14px; }
+      .margin { left:8px; width:36px; }
+      .margin .note .glyph-mark { width:20px; height:20px; }
+      .margin .pencil { left:22px; font-size:12px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas class="sky" data-sky aria-hidden="true"></canvas>
+  <div class="bar">
+    <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
+    <p class="folio">fol. 23</p>
+  </div>
+  <main class="stage">
+    <article class="paper ledger" aria-label="A page from an old handwritten ledger">
+      <canvas class="grain" aria-hidden="true"></canvas>
+      <div class="ledger-head"><span>Record of the Orchard</span><span>fol. 23</span></div>
+      <div class="cols" aria-hidden="true"><span>Date</span><span>Row</span><span>Entry</span></div>
+      <ol class="entries">
+        <li><span class="d">Mar. 3, 1911</span><span class="r">IV</span><span class="e">Planted forty. Two did not take.</span></li>
+        <li><span class="d">Oct. 19, 1911</span><span class="r">IV</span><span class="e">Frost. Counted again. Forty-one.</span></li>
+        <li><span class="d">May 2, 1923</span><span class="r">VII</span><span class="e"><s>Eleanor Voss</s> grafted the old stock onto the new.</span></li>
+        <li><span class="d">Aug. 30, 1937</span><span class="r">VII</span><span class="e"><s>Tomas Aird</s>, <s>Ruth Aird</s>. Gone before harvest.</span></li>
+        <li><span class="d">Jan. 9, 1951</span><span class="r">II</span><span class="e">Cut down the dead tree. It was not dead.</span></li>
+        <li><span class="d">Sep. 14, 1967</span><span class="r">IV</span><span class="e"><s>&emsp;&emsp;&emsp;&emsp;&emsp;</s> Count the dark rings.</span></li>
+        <li class="legible"><span class="d">Apr. 1, 1988</span><span class="r">&middot;</span><span class="e">The marks in the margin are not decoration.</span></li>
+        <li><span class="d">Nov. 22, 2004</span><span class="r">IV</span><span class="e">Forty-one.</span></li>
+      </ol>
+      <div class="margin" aria-hidden="true" data-margin></div>
+      <button class="blot" type="button" aria-label="An ink blot" data-blot>
+        <svg viewBox="0 0 58 48" aria-hidden="true"><path fill="#1c160e" d="M29 6c7 0 9 5 14 6s11 2 10 9-6 7-4 12-3 10-9 9-8 3-14 2-8-6-13-6-9-5-6-11 1-8 4-12 11-9 18-9z"/><path fill="none" stroke="#c9a468" stroke-width="1.2" stroke-linecap="round" d="M22 19a9 9 0 1 0 12 1"/></svg>
+      </button>
+    </article>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const R = window.Record;
+
+      // Margin: marks from the record's script. Two carry a pencilled reading.
+      const margin = document.querySelector('[data-margin]');
+      [['Q', ''], ['I', 'I'], ['Z', ''], ['T', 'T'], ['M', '']].forEach(([letter, pencil]) => {
+        const note = document.createElement('span');
+        note.className = 'note';
+        note.append(R.glyph(letter));
+        if (pencil) { const p = document.createElement('span'); p.className = 'pencil'; p.textContent = '= ' + pencil; note.append(p); }
+        margin.append(note);
+      });
+
+      R.paper(document.querySelector('.grain'));
+
+      // The blot is where the mark was spilled. Lift it and it goes home.
+      const blot = document.querySelector('[data-blot]');
+      if (R.has('ledger')) blot.classList.add('lifted');
+      blot.addEventListener('click', () => {
+        const target = document.querySelector('.home').getBoundingClientRect();
+        const from = blot.getBoundingClientRect();
+        blot.style.transform = `translate(${target.left - from.left}px, ${target.top - from.top}px) scale(.35)`;
+        blot.classList.add('lifted');
+        setTimeout(() => R.award('ledger'), 380);
+      });
+
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* Hidden trail. Same night, same type as the front page; the artifacts are older. */
+:root { color-scheme: dark; --night:#080e0c; --bone:#e7eae6; --mist:#a5b0a9; --gold:#c9a468; --paper:#d9cdb0; --ink:#2b2418; }
+* { box-sizing:border-box; }
+html, body { min-height:100%; }
+body { margin:0; background:var(--night); color:var(--bone); font-family:'Jost','Avenir Next',sans-serif; font-weight:300;
+  transition:opacity .42s ease; }
+body.leaving { opacity:0; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:5px; }
+button { font:inherit; color:inherit; }
+
+.sky { position:fixed; left:0; top:0; width:100%; height:100lvh; z-index:-1; pointer-events:none; }
+
+.bar { position:relative; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:28px clamp(22px,4vw,60px); }
+.home { display:block; width:32px; height:32px; }
+.folio { margin:0; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--mist); }
+
+/* the corner mark: faint dotted outline, gold where a piece has been found */
+.sigil { width:100%; height:100%; overflow:visible; }
+.seg { fill:none; stroke-linecap:round; }
+.seg-missing { stroke:rgba(201,164,104,.42); stroke-width:1.1; stroke-dasharray:.6 2.4; }
+.seg-found { stroke:var(--gold); stroke-width:1.25; }
+.seg-new { stroke-dasharray:1; stroke-dashoffset:1; animation:seg-draw 1.8s .25s ease forwards, seg-glow 2.6s .25s ease; }
+@keyframes seg-draw { to { stroke-dashoffset:0; } }
+@keyframes seg-glow { 0%,100% { filter:none; } 40% { filter:drop-shadow(0 0 5px rgba(201,164,104,.9)); } }
+
+.stage { min-height:calc(100svh - 96px); display:grid; place-items:center; padding:12px clamp(18px,4vw,48px) 72px; }
+.caption { margin:26px auto 0; max-width:34ch; text-align:center; font-size:13px; line-height:1.8; letter-spacing:.06em; color:var(--mist); }
+
+/* paper artifacts */
+.paper { position:relative; color:var(--ink); background:var(--paper); box-shadow:0 30px 80px rgba(0,0,0,.65), 0 2px 0 rgba(255,255,255,.04) inset; }
+.paper > canvas.grain { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; mix-blend-mode:multiply; }
+
+.glyph-mark { width:1.4em; height:1.4em; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
+
+/* newly decoded letters */
+.decoded { position:fixed; left:50%; bottom:26px; transform:translate(-50%,16px); opacity:0; display:flex; align-items:center; gap:22px;
+  padding:12px 20px; background:rgba(8,14,12,.86); border:1px solid rgba(201,164,104,.35); color:var(--gold);
+  font-size:13px; letter-spacing:.14em; transition:opacity .8s ease, transform .8s ease; z-index:10; }
+.decoded.shown { opacity:1; transform:translate(-50%,0); }
+.decoded .pair { display:flex; align-items:center; gap:8px; }
+.decoded .pair b { font-weight:400; color:var(--bone); }
+.decoded .pair::after { content:''; }
+.decoded .note { color:var(--mist); letter-spacing:.2em; }
+
+@media (prefers-reduced-motion:reduce) {
+  body { transition:none; }
+  .decoded { transition:none; }
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080e0c">
+  <title>Chart</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../trail/trail.css">
+  <script src="../trail/trail.js"></script>
+  <style>
+    .chart { position:fixed; inset:0; width:100%; height:100%; touch-action:manipulation; cursor:crosshair; }
+    .chart-caption { position:fixed; left:0; right:0; bottom:34px; margin:0; text-align:center; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--mist); pointer-events:none; }
+    .bar { z-index:2; }
+  </style>
+</head>
+<body>
+  <canvas class="chart" role="img" aria-label="A dark star chart. Seven stars stand out from the rest." data-chart></canvas>
+  <div class="bar">
+    <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
+    <p class="folio">Chart</p>
+  </div>
+  <p class="chart-caption">In the order they were named</p>
+  <script>
+    (() => {
+      'use strict';
+      const R = window.Record;
+      const canvas = document.querySelector('[data-chart]');
+      const ctx = canvas.getContext('2d');
+      const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+      // Seven stars in a square region at the centre. Each, once named, is joined to its parent:
+      // a trunk, a fork, and the fork forking again.
+      const KEY = [
+        { at: [.5, .84], parent: -1 }, { at: [.5, .6], parent: 0 },
+        { at: [.34, .44], parent: 1 }, { at: [.67, .43], parent: 1 },
+        { at: [.24, .22], parent: 2 }, { at: [.43, .2], parent: 2 }, { at: [.8, .19], parent: 3 }
+      ];
+      let named = R.has('chart') ? 7 : 0, hover = -1, fade = 0, w = 1, h = 1, region = { x: 0, y: 0, s: 1 }, frame = 0;
+      let seed = 3301; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const dust = Array.from({ length: 700 }, () => ({ x: rand(), y: rand(), r: .25 + rand() * .7, a: .08 + rand() * .3, p: rand() * 6.28 }));
+      const pos = i => [region.x + KEY[i].at[0] * region.s, region.y + KEY[i].at[1] * region.s];
+
+      function draw(t) {
+        ctx.clearRect(0, 0, w, h);
+        for (const d of dust) {
+          const a = reduced() ? d.a : d.a * (.7 + .3 * Math.sin(t * .0007 + d.p));
+          ctx.fillStyle = `rgba(222,228,222,${a.toFixed(3)})`;
+          ctx.beginPath(); ctx.arc(d.x * w, d.y * h, d.r, 0, 6.2832); ctx.fill();
+        }
+        // faint survey grid: the chart's own coordinates
+        ctx.strokeStyle = 'rgba(165,176,169,.06)'; ctx.lineWidth = 1;
+        for (let k = 0; k <= 6; k++) {
+          const x = region.x + region.s * k / 6, y = region.y + region.s * k / 6;
+          ctx.beginPath(); ctx.moveTo(x, region.y); ctx.lineTo(x, region.y + region.s); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(region.x, y); ctx.lineTo(region.x + region.s, y); ctx.stroke();
+        }
+        // joined edges
+        const lineAlpha = named ? Math.max(0, 1 - fade) : 0;
+        ctx.lineWidth = 1.2;
+        for (let i = 1; i < named; i++) {
+          const [ax, ay] = pos(KEY[i].parent), [bx, by] = pos(i);
+          ctx.strokeStyle = `rgba(201,164,104,${(.85 * lineAlpha).toFixed(3)})`;
+          ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+        }
+        // the seven
+        KEY.forEach((star, i) => {
+          const [x, y] = pos(i), lit = i < named;
+          const glow = reduced() ? .8 : .7 + .3 * Math.sin(t * .0012 + i);
+          ctx.fillStyle = lit ? 'rgba(214,180,116,1)' : `rgba(236,238,232,${(.55 + .3 * glow).toFixed(3)})`;
+          ctx.beginPath(); ctx.arc(x, y, lit ? 2.6 : 2, 0, 6.2832); ctx.fill();
+          if (i === hover || lit) {
+            ctx.font = '300 11px Jost, sans-serif'; ctx.letterSpacing = '2px';
+            ctx.fillStyle = lit ? 'rgba(201,164,104,.8)' : 'rgba(165,176,169,.85)';
+            ctx.fillText(NUMERALS[i], x + 9, y - 8);
+          }
+        });
+        if (fade > 0) { fade = Math.min(1, fade + .04); if (fade >= 1) { named = 0; fade = 0; } }
+      }
+      function loop(t) { draw(t); frame = requestAnimationFrame(loop); }
+      function resize() {
+        w = innerWidth; h = innerHeight;
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const s = Math.min(w * .82, h * .66);
+        region = { x: (w - s) / 2, y: (h - s) / 2 + 10, s };
+        draw(performance.now());
+      }
+      function nearest(x, y) {
+        let best = -1, dist = 22;
+        KEY.forEach((_, i) => { const [sx, sy] = pos(i), d = Math.hypot(sx - x, sy - y); if (d < dist) { dist = d; best = i; } });
+        return best;
+      }
+      canvas.addEventListener('pointermove', e => { hover = nearest(e.clientX, e.clientY); canvas.style.cursor = hover >= 0 ? 'pointer' : 'crosshair'; });
+      canvas.addEventListener('click', e => {
+        if (named >= 7 || fade) return;
+        const i = nearest(e.clientX, e.clientY);
+        if (i < 0) return;
+        if (i === named) {
+          named++;
+          if (named === 7) setTimeout(() => R.award('chart'), 700);
+        } else if (i >= named) {
+          fade = .01;                      // out of order: the lines let go
+        }
+      });
+      addEventListener('resize', resize);
+      document.addEventListener('visibilitychange', () => { cancelAnimationFrame(frame); if (!document.hidden) frame = requestAnimationFrame(loop); });
+      resize();
+      frame = requestAnimationFrame(loop);
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));
+    })();
+  </script>
+</body>
+</html>

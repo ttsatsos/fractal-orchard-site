@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080e0c">
+  <title>Unrecorded</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../trail/trail.css">
+  <script src="../trail/trail.js"></script>
+  <style>
+    .gate { width:min(92vw,720px); display:flex; flex-direction:column; align-items:center; gap:34px; text-align:center; }
+    .big-sigil { width:92px; height:92px; }
+    .quiet { margin:0; font-size:15px; letter-spacing:.14em; color:var(--mist); }
+    .phrase { display:flex; flex-wrap:wrap; justify-content:center; gap:18px 42px; }
+    .word { display:flex; gap:8px; }
+    .cell { display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--gold); }
+    .cell .glyph-mark { width:clamp(30px,6vw,44px); height:clamp(30px,6vw,44px); stroke-width:2.2; }
+    .cell b { font-weight:300; font-size:14px; letter-spacing:.1em; color:var(--bone); min-height:1.2em; }
+    form { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+    input, textarea { font:inherit; font-size:16px; color:var(--bone); background:transparent; border:0; border-bottom:1px solid rgba(165,176,169,.45); padding:10px 4px; text-align:center; }
+    input:focus, textarea:focus { outline:none; border-bottom-color:var(--gold); }
+    .answer { width:min(80vw,320px); letter-spacing:.2em; text-transform:uppercase; }
+    button.ghost { font-size:12px; letter-spacing:.24em; text-transform:uppercase; background:transparent; border:1px solid rgba(201,164,104,.45); padding:11px 22px; cursor:pointer; }
+    button.ghost:hover { border-color:var(--gold); color:var(--gold); }
+    .shake { animation:shake .4s ease; }
+    @keyframes shake { 20%,60% { transform:translateX(-6px); } 40%,80% { transform:translateX(6px); } }
+    .invite { display:flex; flex-direction:column; align-items:center; gap:22px; }
+    .invite form { flex-direction:column; align-items:center; width:min(86vw,380px); }
+    .invite input, .invite textarea { width:100%; }
+    .invite textarea { resize:none; min-height:2.8em; }
+    .status { min-height:1.5em; margin:0; font-size:13px; letter-spacing:.1em; color:var(--mist); }
+    [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+  <canvas class="sky" data-sky aria-hidden="true"></canvas>
+  <div class="bar">
+    <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
+    <p class="folio">Unrecorded</p>
+  </div>
+  <main class="stage">
+    <section class="gate" data-incomplete hidden>
+      <svg class="sigil big-sigil" data-sigil aria-hidden="true"></svg>
+      <p class="quiet">The record is incomplete.</p>
+    </section>
+
+    <section class="gate" data-complete hidden>
+      <div class="phrase" aria-hidden="true" data-phrase></div>
+      <form data-answer-form autocomplete="off">
+        <label class="visually-hidden" for="answer" hidden>Write it plainly</label>
+        <input class="answer" id="answer" name="answer" placeholder="Write it plainly" spellcheck="false" autocapitalize="characters" required>
+        <button class="ghost" type="submit">Enter</button>
+      </form>
+    </section>
+
+    <section class="gate invite" data-invite hidden>
+      <p class="quiet">You may ask to be invited.</p>
+      <form data-invite-form>
+        <input type="email" name="email" placeholder="Where we can find you" autocomplete="email" required aria-label="Email address">
+        <textarea name="note" maxlength="240" placeholder="What brought you this far (optional)" aria-label="What brought you this far"></textarea>
+        <button class="ghost" type="submit">Ask</button>
+      </form>
+      <p class="status" role="status" data-status></p>
+    </section>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const R = window.Record;
+      // Where invitation requests go. Left empty until Tom chooses a destination; the form refuses to
+      // pretend it sent anything while this is blank.
+      const INVITE_ENDPOINT = '';
+
+      const show = sel => document.querySelector(sel).hidden = false;
+      if (!R.complete()) { show('[data-incomplete]'); }
+      else {
+        show('[data-complete]');
+        const phrase = document.querySelector('[data-phrase]');
+        for (const word of R.PHRASE) {
+          const w = document.createElement('div'); w.className = 'word';
+          for (const letter of word) {
+            const cell = document.createElement('div'); cell.className = 'cell';
+            cell.append(R.glyph(letter));
+            const b = document.createElement('b'); b.textContent = R.state.letters.has(letter) ? letter : '';
+            cell.append(b); w.append(cell);
+          }
+          phrase.append(w);
+        }
+        document.querySelector('[data-answer-form]').addEventListener('submit', e => {
+          e.preventDefault();
+          const input = e.target.answer;
+          const clean = input.value.toUpperCase().replace(/[^A-Z]/g, '');
+          if (clean === R.PHRASE.join('')) {
+            document.querySelector('[data-complete]').hidden = true;
+            show('[data-invite]');
+            document.querySelector('[data-invite] input').focus();
+          } else {
+            input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+          }
+        });
+      }
+
+      const status = document.querySelector('[data-status]');
+      document.querySelector('[data-invite-form]').addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!INVITE_ENDPOINT) { status.textContent = 'The orchard is not taking names yet.'; return; }
+        const button = e.target.querySelector('button');
+        button.disabled = true; status.textContent = '';
+        try {
+          const response = await fetch(INVITE_ENDPOINT, { method: 'POST', body: new FormData(e.target), headers: { Accept: 'application/json' } });
+          if (!response.ok) throw new Error(String(response.status));
+          e.target.hidden = true;
+          status.textContent = 'Written down. If you are chosen, you will hear.';
+        } catch {
+          status.textContent = 'That did not go through. Try again in a moment.';
+          button.disabled = false;
+        }
+      });
+
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));
+    })();
+  </script>
+</body>
+</html>

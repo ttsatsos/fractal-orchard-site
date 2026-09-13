@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#080e0c">
+  <title>no. 4</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../trail/trail.css">
+  <script src="../trail/trail.js"></script>
+  <style>
+    .section { position:relative; width:min(88vw,74svh,620px); aspect-ratio:1; }
+    .section canvas { position:absolute; inset:0; width:100%; height:100%; touch-action:manipulation; }
+    .year { position:absolute; pointer-events:none; transform:translate(14px,-26px); padding:3px 8px; font-size:11px; letter-spacing:.18em;
+      color:var(--bone); background:rgba(8,14,12,.78); border:1px solid rgba(165,176,169,.28); opacity:0; transition:opacity .25s ease; white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .year.on { opacity:1; }
+    .year.dark { color:var(--gold); border-color:rgba(201,164,104,.5); }
+  </style>
+</head>
+<body>
+  <canvas class="sky" data-sky aria-hidden="true"></canvas>
+  <div class="bar">
+    <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
+    <p class="folio">no. 4</p>
+  </div>
+  <main class="stage">
+    <div>
+      <div class="section">
+        <canvas role="img" aria-label="A cross-section of a tree trunk, its rings drawn one for every two years." data-wood></canvas>
+        <span class="year" data-year></span>
+      </div>
+      <p class="caption">Section, row II. Felled 1951.</p>
+    </div>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const R = window.Record;
+      const canvas = document.querySelector('[data-wood]');
+      const label = document.querySelector('[data-year]');
+      const ctx = canvas.getContext('2d');
+      const FIRST = 1911, STEP = 2, RINGS = 58;
+      const DARK = [6, 13, 20, 28];                 // 1923, 1937, 1951, 1967, the years the ledger remembers
+      const found = new Set(R.has('growth') ? DARK : []);
+      let size = 1, cx = 0, cy = 0, outer = 1, base = null, hover = -1;
+
+      // Irregular but stable: every ring shares the same slow wobble, plus a little of its own.
+      const wobble = (theta, i) =>
+        1 + .028 * Math.sin(3 * theta + .7) + .018 * Math.sin(5 * theta + 2.1) + .01 * Math.sin(7 * theta + i * .13) + .006 * Math.sin(11 * theta + i);
+      const ringRadius = i => outer * (1 - Math.pow(1 - (i + 1) / RINGS, 1.35));
+      const radiusAt = (i, theta) => ringRadius(i) * wobble(theta, i);
+
+      function tracePath(g, i) {
+        g.beginPath();
+        for (let k = 0; k <= 180; k++) {
+          const t = k / 180 * Math.PI * 2, r = radiusAt(i, t);
+          const x = cx + Math.cos(t) * r, y = cy + Math.sin(t) * r;
+          k ? g.lineTo(x, y) : g.moveTo(x, y);
+        }
+        g.closePath();
+      }
+
+      function drawBase() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const off = document.createElement('canvas');
+        off.width = Math.round(size * dpr); off.height = Math.round(size * dpr);
+        const g = off.getContext('2d'); g.scale(dpr, dpr);
+        // bark
+        tracePath(g, RINGS - 1);
+        g.save(); g.lineWidth = outer * .09; g.strokeStyle = '#1c140c'; g.stroke(); g.restore();
+        // wood
+        const wood = g.createRadialGradient(cx, cy, 0, cx, cy, outer);
+        wood.addColorStop(0, '#8c6d44'); wood.addColorStop(.6, '#6f5332'); wood.addColorStop(1, '#4b3721');
+        tracePath(g, RINGS - 1); g.fillStyle = wood; g.fill();
+        // rings, with a darker latewood band every other ring
+        for (let i = 0; i < RINGS; i++) {
+          tracePath(g, i);
+          const dark = DARK.includes(i);
+          g.lineWidth = dark ? 3.2 : (i % 2 ? .7 : 1.1);
+          g.strokeStyle = dark ? 'rgba(28,18,8,.92)' : `rgba(40,26,12,${.35 + (i % 3) * .08})`;
+          g.stroke();
+        }
+        // checks: dry cracks running out from the heart
+        let s = 51; const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+        for (let c = 0; c < 5; c++) {
+          const t = rand() * Math.PI * 2, len = outer * (.25 + rand() * .45);
+          g.beginPath(); g.moveTo(cx + Math.cos(t) * outer * .03, cy + Math.sin(t) * outer * .03);
+          for (let k = 1; k <= 12; k++) {
+            const r = len * k / 12, jitter = (rand() - .5) * .05;
+            g.lineTo(cx + Math.cos(t + jitter) * r, cy + Math.sin(t + jitter) * r);
+          }
+          g.lineWidth = 1.2; g.strokeStyle = 'rgba(15,10,5,.7)'; g.stroke();
+        }
+        // pith
+        g.beginPath(); g.arc(cx, cy, 3, 0, Math.PI * 2); g.fillStyle = '#23180d'; g.fill();
+        base = off;
+      }
+
+      function render() {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(base, 0, 0);
+        const dpr = canvas.width / size;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        for (const i of found) { tracePath(ctx, i); ctx.lineWidth = 2.4; ctx.strokeStyle = 'rgba(201,164,104,.95)'; ctx.stroke(); }
+        if (hover >= 0) {
+          tracePath(ctx, hover);
+          ctx.lineWidth = DARK.includes(hover) ? 3.4 : 1.6;
+          ctx.strokeStyle = DARK.includes(hover) ? 'rgba(231,210,160,.85)' : 'rgba(231,234,230,.45)';
+          ctx.stroke();
+        }
+      }
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        size = rect.width; cx = size / 2; cy = size / 2; outer = size * .44;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
+        drawBase(); render();
+      }
+
+      function ringAt(x, y) {
+        const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy), t = Math.atan2(dy, dx);
+        if (d > radiusAt(RINGS - 1, t)) return -1;
+        for (let i = 0; i < RINGS; i++) {
+          if (d <= radiusAt(i, t)) {
+            // prefer the nearest ring line, so a dark ring is easy to hit
+            const inner = i ? radiusAt(i - 1, t) : 0;
+            return (radiusAt(i, t) - d) < (d - inner) ? i : Math.max(0, i - 1);
+          }
+        }
+        return -1;
+      }
+
+      function point(event) {
+        const rect = canvas.getBoundingClientRect();
+        return [event.clientX - rect.left, event.clientY - rect.top];
+      }
+
+      canvas.addEventListener('pointermove', event => {
+        const [x, y] = point(event);
+        const i = ringAt(x, y);
+        if (i !== hover) { hover = i; render(); }
+        if (i < 0) { label.classList.remove('on'); return; }
+        label.textContent = String(FIRST + i * STEP);
+        label.classList.toggle('dark', DARK.includes(i));
+        label.style.left = x + 'px'; label.style.top = y + 'px';
+        label.classList.add('on');
+      });
+      canvas.addEventListener('pointerleave', () => { hover = -1; label.classList.remove('on'); render(); });
+      canvas.addEventListener('click', event => {
+        const [x, y] = point(event);
+        const i = ringAt(x, y);
+        if (!DARK.includes(i) || found.has(i)) return;
+        found.add(i); render();
+        if (DARK.every(d => found.has(d))) setTimeout(() => R.award('growth'), 500);
+      });
+
+      new ResizeObserver(resize).observe(canvas);
+      document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));
+    })();
+  </script>
+</body>
+</html>
