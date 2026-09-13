@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080e0c">
+  <title>Privacy · Fractal Orchard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080e0c'/%3E%3Cpath d='M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5' fill='none' stroke='%23c9a468' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: dark; --night:#080e0c; --bone:#e7eae6; --mist:#a5b0a9; --gold:#c9a468; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--night); color:var(--bone); font-family:'Jost','Avenir Next',sans-serif; font-weight:300; }
+    a { color:var(--gold); text-underline-offset:3px; }
+    a:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
+    .bar { display:flex; align-items:center; gap:14px; padding:28px clamp(22px,4vw,60px); }
+    .bar a { display:flex; align-items:center; gap:14px; color:var(--bone); text-decoration:none; font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+    .bar svg { width:28px; height:28px; fill:none; stroke:var(--gold); stroke-width:1.1; stroke-linecap:round; }
+    main { max-width:640px; margin:0 auto; padding:24px clamp(20px,5vw,32px) 96px; }
+    h1 { margin:0; font-size:clamp(28px,4vw,40px); font-weight:300; letter-spacing:.12em; text-transform:uppercase; }
+    .updated { margin:14px 0 0; color:var(--mist); font-size:13px; letter-spacing:.06em; }
+    h2 { margin:48px 0 0; font-size:13px; font-weight:400; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); }
+    p, li { font-size:16px; line-height:1.75; color:#d3dad5; }
+    p { margin:14px 0 0; }
+    ul { margin:14px 0 0; padding-left:1.2em; }
+    li + li { margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a href="../" aria-label="Fractal Orchard home">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M31 8a18 18 0 1 0 10 14M42 15L32 24l7 8M32 24l-6-5"/></svg>
+      Fractal Orchard
+    </a>
+  </div>
+  <main>
+    <h1>Privacy</h1>
+    <p class="updated">Updated September 13, 2026</p>
+
+    <h2>The app</h2>
+    <ul>
+      <li>Everything you enter, including your name, your choices and anything you type, is saved only on your device.</li>
+      <li>The app has no account, no ads, no analytics service and no tracking, and it does not connect to the internet.</li>
+      <li>If you allow notifications, reminders are scheduled on your device. Nothing is sent to a server.</li>
+      <li>Settings offers an optional progress export that you share yourself. It contains progress, choice identifiers and permission results. It does not include your name or your writing.</li>
+      <li>Deleting the app deletes everything it saved.</li>
+    </ul>
+
+    <h2>Testing through TestFlight</h2>
+    <p>While Fractal Orchard is in testing, Apple&rsquo;s TestFlight service shares some information with us, such as install dates, session counts, crash reports and any feedback or screenshots you choose to send. If you joined through a public link, you appear to us anonymously. Apple describes what it collects in its <a href="https://www.apple.com/legal/privacy/data/en/test-flight/">TestFlight privacy notice</a>.</p>
+
+    <h2>This website</h2>
+    <ul>
+      <li>Anything you find on these pages is remembered only in your own browser.</li>
+      <li>If you ask to be written into the record, we keep the email address you give, the mark you draw and the date. We use them once, to write back, and never share or sell them.</li>
+      <li>If we do not write within thirty days, that request is erased. If we do, it is erased a day after the letter is sent, and the letter carries a link to erase it sooner.</li>
+      <li>To limit abuse, a scrambled form of your IP address is held briefly in memory. It is never saved.</li>
+      <li>Letters are sent through Google Workspace. The site loads its fonts from Google Fonts.</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <p>Questions, or a request to erase anything we hold: <a href="mailto:orchard@nr10.com">orchard@nr10.com</a>.</p>
+  </main>
+</body>
+</html>
