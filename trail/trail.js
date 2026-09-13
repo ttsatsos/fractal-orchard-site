@@ -222,8 +222,41 @@
     new ResizeObserver(paint).observe(canvas);
   }
 
+  // ── the visitor's own line ─────────────────────────────────────────
+  // Kept in this browser only: the date and the mark. The address is not kept here.
+  const LINE_KEY = 'fractal-orchard-line-v1';
+  function readLine() {
+    try {
+      const data = JSON.parse(localStorage.getItem(LINE_KEY) || 'null');
+      return data && typeof data.date === 'string' && Array.isArray(data.mark) ? data : null;
+    } catch { return null; }
+  }
+  function writeLine(date, mark) {
+    try { localStorage.setItem(LINE_KEY, JSON.stringify({ date, mark })); } catch { /* private mode */ }
+  }
+
+  // Ledger-style date, e.g. "Sep. 12, 2026".
+  function ledgerDate(d = new Date()) {
+    const months = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+
+  // A stroke of [x, y] points in a 0-100 box, smoothed through midpoints.
+  function markPath(points) {
+    if (!points || points.length < 2) return '';
+    let d = `M${points[0][0]} ${points[0][1]}`;
+    for (let i = 1; i < points.length - 1; i++) {
+      const mx = ((points[i][0] + points[i + 1][0]) / 2).toFixed(1);
+      const my = ((points[i][1] + points[i + 1][1]) / 2).toFixed(1);
+      d += ` Q${points[i][0]} ${points[i][1]} ${mx} ${my}`;
+    }
+    const end = points[points.length - 1];
+    return d + ` L${end[0]} ${end[1]}`;
+  }
+
   window.Record = {
     PIECES, LETTERS, PHRASE, state, glyph, award, go, sky, paper, renderAllSigils,
+    readLine, writeLine, ledgerDate, markPath,
     has: id => state.pieces.has(id),
     complete: () => PIECES.every(id => state.pieces.has(id))
   };

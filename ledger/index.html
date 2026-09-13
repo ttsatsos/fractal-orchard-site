@@ -25,6 +25,9 @@
     .entries .r { text-align:center; }
     .entries s { text-decoration-thickness:1.5px; text-decoration-color:rgba(30,24,16,.85); }
     .entries .legible .e { color:#141009; }
+    .entries .own .e { display:flex; align-items:center; gap:14px; }
+    .own-mark { width:30px; height:30px; overflow:visible; }
+    .own-mark path { fill:none; stroke:#1c160e; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
     .margin { position:absolute; left:14px; top:96px; bottom:40px; width:46px; display:flex; flex-direction:column; justify-content:space-around; align-items:center;
       border-right:1px solid rgba(160,60,50,.35); }
     .margin .note { position:relative; color:#3a2e1f; }
@@ -86,6 +89,23 @@
         if (pencil) { const p = document.createElement('span'); p.className = 'pencil'; p.textContent = '= ' + pencil; note.append(p); }
         margin.append(note);
       });
+
+      // A line the visitor wrote at the gate, if they did. Their address is not kept, only the mark.
+      const own = R.readLine();
+      if (own) {
+        const li = document.createElement('li');
+        li.className = 'own';
+        const d = document.createElement('span'); d.className = 'd'; d.textContent = own.date;
+        const r = document.createElement('span'); r.className = 'r'; r.innerHTML = '&middot;';
+        const e = document.createElement('span'); e.className = 'e';
+        const s = document.createElement('s'); s.innerHTML = '&emsp;'.repeat(7);
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('class', 'own-mark'); svg.setAttribute('aria-hidden', 'true');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('d', R.markPath(own.mark));
+        svg.append(path); e.append(s, svg);
+        li.append(d, r, e);
+        document.querySelector('.entries').append(li);
+      }
 
       R.paper(document.querySelector('.grain'));
 
