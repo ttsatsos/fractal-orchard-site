@@ -135,17 +135,22 @@
   }
 
   // ── the page itself acknowledges: a glow on the artifact, and a quiet note ─
+  // Pages lay out differently: most center an artifact in .stage, the frequency page uses
+  // .freq-stage, and the star chart fills the screen with its caption pinned to the bottom.
   function recordedNote(animate) {
-    const stage = document.querySelector('.stage');
-    if (!stage || stage.querySelector('.recorded')) return;
+    if (document.querySelector('.recorded')) return;
+    const stage = document.querySelector('.stage, .freq-stage');
+    const caption = document.querySelector('.caption, .chart-caption');
+    if (!stage && !caption) return;
     const p = document.createElement('p');
     p.className = animate && !reduced() ? 'recorded recorded-new' : 'recorded';
     p.textContent = 'Recorded.';
-    const caption = stage.querySelector('.caption');
-    if (caption) caption.after(p); else stage.append(p);
+    if (caption && getComputedStyle(caption).position === 'fixed') { p.classList.add('recorded-fixed'); document.body.append(p); }
+    else if (caption) caption.after(p);
+    else stage.append(p);
   }
   function glowArtifact() {
-    const artifact = document.querySelector('.stage > *');
+    const artifact = document.querySelector('.stage > *, .freq-stage > *');
     if (!artifact || reduced()) return;
     artifact.classList.remove('record-glow'); void artifact.offsetWidth; artifact.classList.add('record-glow');
   }

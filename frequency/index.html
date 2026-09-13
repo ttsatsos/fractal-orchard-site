@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../trail/trail.css?v=2">
-  <script src="../trail/trail.js?v=2"></script>
+  <link rel="stylesheet" href="../trail/trail.css?v=3">
+  <script src="../trail/trail.js?v=3"></script>
   <style>
     .band { position:relative; width:100vw; height:min(34svh,280px); touch-action:none; cursor:pointer; user-select:none; -webkit-user-select:none; }
     .band canvas { position:absolute; inset:0; width:100%; height:100%; }
@@ -60,7 +60,11 @@
       }
       const PERIOD = beat + 5;
 
-      let w = 1, h = 1, energy = .15, held = 0, holding = false, holdStart = 0, done = R.has('frequency'), frame = 0, lastY = scrollY;
+      let w = 1, h = 1, energy = .15, holding = false, done = R.has('frequency'), frame = 0, lastY = scrollY;
+      // Holding fills the line with gold over HOLD_MS. Letting go drains it back slowly, so a
+      // near miss is visible, and holding again picks up from wherever the gold has drained to.
+      const HOLD_MS = 3000, DRAIN_MS = 4500;
+      let progress = done ? 1 : 0, lastT = 0;
 
       function signal(x, t) {
         // position along the train, drifting left to right
@@ -78,23 +82,44 @@
         ctx.clearRect(0, 0, w, h);
         const mid = h / 2, calm = done ? .25 : 1;
         const tremble = (reduced() ? .15 : energy) * calm;
-        const steady = holding ? Math.min(1, (t - holdStart) / 3000) : (done ? 1 : 0);
-        ctx.lineWidth = 1.3;
-        ctx.beginPath();
+        const dt = lastT ? Math.min(100, t - lastT) : 0;
+        lastT = t;
+        if (!done) progress = holding ? Math.min(1, progress + dt / HOLD_MS) : Math.max(0, progress - dt / DRAIN_MS);
+        const steady = done ? 1 : progress;
+        // Build the line once, then draw it twice: a dim unfilled line, and the gold part on top.
+        const line = new Path2D();
+        const reach = done ? 1 : steady;
+        const edgeX = reach * w;
+        let edgeY = mid;
         for (let x = 0; x <= w; x += 2) {
           const noise = reduced() ? 0 : (Math.sin(x * .031 + t * .006) + Math.sin(x * .073 - t * .009) * .6 + Math.sin(x * .17 + t * .013) * .3);
           const y = mid - signal(x, reduced() ? 0 : t) * h * .28 * (1 - steady * .4) + noise * h * .06 * tremble * (1 - steady);
-          x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+          x ? line.lineTo(x, y) : line.moveTo(x, y);
+          if (Math.abs(x - edgeX) < 1.5) edgeY = y;
         }
-        const grad = ctx.createLinearGradient(0, 0, w, 0);
-        const reach = done ? 1 : steady;
-        grad.addColorStop(0, 'rgba(201,164,104,.95)');
-        grad.addColorStop(Math.max(.001, reach), 'rgba(201,164,104,.95)');
-        grad.addColorStop(Math.min(1, reach + .001), 'rgba(200,209,203,.7)');
-        grad.addColorStop(1, 'rgba(200,209,203,.7)');
-        ctx.strokeStyle = grad; ctx.stroke();
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = reach > 0 ? 'rgba(200,209,203,.45)' : 'rgba(200,209,203,.7)';
+        ctx.stroke(line);
+        if (reach > 0) {
+          ctx.save();
+          ctx.beginPath(); ctx.rect(0, 0, edgeX, h); ctx.clip();
+          ctx.lineWidth = 3.2;
+          ctx.strokeStyle = 'rgba(226,190,120,1)';
+          ctx.shadowColor = 'rgba(214,176,106,.9)';
+          ctx.shadowBlur = 16;
+          ctx.stroke(line);
+          ctx.restore();
+          if (!done) {
+            // a bright point where the gold is advancing (or draining)
+            ctx.save();
+            ctx.shadowColor = 'rgba(240,210,150,1)'; ctx.shadowBlur = 22;
+            ctx.fillStyle = 'rgba(255,236,196,1)';
+            ctx.beginPath(); ctx.arc(edgeX, edgeY, holding ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+          }
+        }
         energy = Math.max(.15, energy * .96);
-        if (holding && !done && t - holdStart >= 3000) { done = true; holding = false; R.award('frequency'); }
+        if (!done && progress >= 1) { done = true; holding = false; R.award('frequency'); }
       }
       function loop(t) { draw(t); frame = requestAnimationFrame(loop); }
       function resize() {
@@ -107,15 +132,15 @@
       // it trembles when anything moves
       addEventListener('scroll', () => { energy = Math.min(3, energy + Math.abs(scrollY - lastY) * .04); lastY = scrollY; }, { passive: true });
       addEventListener('pointermove', e => { if (!holding) energy = Math.min(3, energy + (Math.abs(e.movementX) + Math.abs(e.movementY)) * .015); });
-      const start = () => { if (done) return; holding = true; holdStart = performance.now(); };
+      const start = () => { if (done) return; holding = true; };
       const stop = () => { holding = false; };
-      band.addEventListener('pointerdown', e => { band.setPointerCapture(e.pointerId); start(); });
+      band.addEventListener('pointerdown', e => { try { band.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ } start(); });
       band.addEventListener('pointerup', stop);
       band.addEventListener('pointercancel', stop);
       band.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); start(); } });
       band.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
       new ResizeObserver(resize).observe(band);
-      document.addEventListener('visibilitychange', () => { cancelAnimationFrame(frame); if (!document.hidden) frame = requestAnimationFrame(loop); });
+      document.addEventListener('visibilitychange', () => { cancelAnimationFrame(frame); lastT = 0; if (!document.hidden) frame = requestAnimationFrame(loop); });
       resize();
       frame = requestAnimationFrame(loop);
       document.querySelectorAll('[data-leave]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); R.go(a.getAttribute('href')); }));

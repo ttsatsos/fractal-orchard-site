@@ -48,6 +48,7 @@ button { font:inherit; color:inherit; }
 /* the page acknowledges a finished piece */
 .recorded { margin:18px auto 0; text-align:center; font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); opacity:.85; }
 .recorded-new { animation:recorded-in 1.6s .2s ease both; }
+.recorded-fixed { position:fixed; left:0; right:0; top:86px; margin:0; pointer-events:none; z-index:5; }
 @keyframes recorded-in { from { opacity:0; letter-spacing:.6em; } to { opacity:.85; letter-spacing:.32em; } }
 .record-glow { animation:record-glow 2.2s ease; }
 @keyframes record-glow { 0%,100% { filter:none; } 35% { filter:drop-shadow(0 0 18px rgba(201,164,104,.75)) brightness(1.08); } }
