@@ -136,6 +136,20 @@
         return -1;
       }
 
+      // Rings are only a few pixels apart, too close for a finger. A click counts for a marked
+      // ring anywhere within reach of it. Reach scales with the drawing (about 11 px at full size)
+      // and stays under half the narrowest gap between marked rings, so reaches never overlap.
+      const reach = () => Math.min(11, size * .026);
+      function markedRingNear(x, y) {
+        const d = Math.hypot(x - cx, y - cy), t = Math.atan2(y - cy, x - cx);
+        let best = -1, bestGap = reach();
+        for (const i of DARK) {
+          const gap = Math.abs(d - radiusAt(i, t));
+          if (gap <= bestGap) { best = i; bestGap = gap; }
+        }
+        return best;
+      }
+
       function point(event) {
         const rect = canvas.getBoundingClientRect();
         return [event.clientX - rect.left, event.clientY - rect.top];
@@ -154,8 +168,8 @@
       canvas.addEventListener('pointerleave', () => { hover = -1; label.classList.remove('on'); render(); });
       canvas.addEventListener('click', event => {
         const [x, y] = point(event);
-        const i = ringAt(x, y);
-        if (!DARK.includes(i) || found.has(i)) return;
+        const i = markedRingNear(x, y);
+        if (i < 0 || found.has(i)) return;
         found.add(i); render();
         if (DARK.every(d => found.has(d))) setTimeout(() => R.award('growth'), 500);
       });
