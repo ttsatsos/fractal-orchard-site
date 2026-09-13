@@ -118,7 +118,7 @@
       <details class="kept">
         <summary>What is kept</summary>
         <p>The address, the mark and today&rsquo;s date, on a single machine. They are used once, to write back, and never shared. Nothing else on these pages leaves your browser.</p>
-        <p data-removal>To be struck from the record, answer the orchard&rsquo;s letter and say so.</p>
+        <p>If the orchard does not write within thirty days, the line is erased. If it does, the line is erased a day after the letter, and the letter carries a way to strike it sooner.</p>
       </details>
     </section>
   </main>
@@ -126,9 +126,8 @@
     (() => {
       'use strict';
       const R = window.Record;
-      // Where invitation requests go. Left empty until Tom chooses a destination; the form refuses to
-      // pretend it sent anything while this is blank.
-      const INVITE_ENDPOINT = '';
+      // Where invitation requests go. If this is ever emptied, the form refuses rather than pretending it sent.
+      const INVITE_ENDPOINT = 'https://vegapunks-mac-mini.tail624c45.ts.net/orchard/ask';
 
       const show = sel => document.querySelector(sel).hidden = false;
       if (!R.complete()) { show('[data-incomplete]'); }
