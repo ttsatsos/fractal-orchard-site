@@ -576,7 +576,8 @@
       // cover on phones), and let it twinkle like the brightest stars in the sky above it.
       function lastDoor(link) {
         const hero = link.closest('.hero'), art = hero.querySelector('.hero-art');
-        const TRUNK = [.493, .69];                       // fraction of the photograph
+        const TRUNK = [.495, .79];                       // low on the trunk, where the bark is darkest
+        const explore = hero.querySelector('.scroll-link');
         link.hidden = false;
         const place = () => {
           const box = art.getBoundingClientRect(), frame = hero.getBoundingClientRect();
@@ -586,7 +587,10 @@
           const w = nw * scale, h = nh * scale;
           const left = box.left + (box.width - w) * .5, top = box.top + (box.height - h);   // object-position 50% 100%
           link.style.left = (left + TRUNK[0] * w - frame.left) + 'px';
-          link.style.top = (top + TRUNK[1] * h - frame.top) + 'px';
+          let y = top + TRUNK[1] * h;
+          // Never sit on the Explore link: stop just above its text on screens where the two meet.
+          if (explore) y = Math.min(y, explore.getBoundingClientRect().top + 12 - 10 - link.offsetHeight / 2);
+          link.style.top = (y - frame.top) + 'px';
         };
         if (art.complete) place(); else art.addEventListener('load', place, { once: true });
         new ResizeObserver(place).observe(hero);
