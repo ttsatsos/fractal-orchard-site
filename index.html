@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="trail/trail.css?v=3">
-  <script src="trail/trail.js?v=3"></script>
+  <link rel="stylesheet" href="trail/trail.css?v=4">
+  <script src="trail/trail.js?v=4"></script>
   <style>
     :root { color-scheme: dark; --night:#080e0c; --bone:#e7eae6; --mist:#a5b0a9; --gold:#c9a468; }
     * { box-sizing:border-box; }
@@ -60,8 +60,8 @@
     .sigil-door { display:block; width:30px; height:30px; cursor:pointer; }
     .sigil-door .seg-missing { stroke:rgba(201,164,104,.45); }
     .sigil-door:hover .seg-missing { stroke:rgba(201,164,104,.75); }
-    .sigil-door.complete { animation:sigil-breathe 3.4s ease-in-out infinite; }
-    @keyframes sigil-breathe { 0%,100% { filter:none; } 50% { filter:drop-shadow(0 0 6px rgba(201,164,104,.8)); } }
+    .sigil-door.complete { animation:sigil-breathe 2.6s ease-in-out infinite; transform-origin:50% 50%; }
+    @keyframes sigil-breathe { 0%,100% { filter:drop-shadow(0 0 2px rgba(201,164,104,.55)); transform:scale(1); } 50% { filter:drop-shadow(0 0 9px rgba(232,200,136,1)) drop-shadow(0 0 22px rgba(201,164,104,.65)); transform:scale(1.14); } }
     .mark[data-door] { cursor:pointer; }
     .mark[data-door]:focus-visible { outline:1px solid var(--gold); outline-offset:8px; border-radius:50%; }
     .pattern-frame { position:relative; }

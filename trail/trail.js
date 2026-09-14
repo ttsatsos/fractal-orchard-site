@@ -10,6 +10,10 @@
   const PIECES = ['ledger', 'growth', 'plate', 'chart', 'frequency', 'assembly'];
   const LETTERS = { ledger: ['I', 'T'], growth: ['G', 'R'], plate: ['E', 'W'], chart: ['B', 'A'], frequency: ['C', 'K'], assembly: [] };
   const PHRASE = ['IT', 'GREW', 'BACK'];
+  // Anything a page reveals besides its letters, kept so it can be shown again on later visits.
+  const NOTES = { assembly: '2 · 4 · 4' };
+  // Site root, from this script's own address (trail/trail.js), so links work from any page.
+  const BASE = new URL('..', document.currentScript ? document.currentScript.src : location.href).href;
 
   // The corner mark, split into six strokes. The arc thirds are exact sub-arcs of the
   // original circle (center 23.13, 24.19, radius 18), so the assembled mark matches the logo.
@@ -100,54 +104,45 @@
     document.querySelectorAll('svg[data-sigil]').forEach(svg => renderSigil(svg, newIndex));
   }
 
-  // ── decoded letters, shown when a piece is found, until the next tap ─
-  function announce(letters, note) {
-    const strip = document.createElement('div');
-    strip.className = 'decoded';
-    strip.setAttribute('role', 'status');
-    if (letters.length) {
-      for (const letter of letters) {
-        const pair = document.createElement('span');
-        pair.className = 'pair';
-        pair.append(glyph(letter));
-        const text = document.createElement('b');
-        text.textContent = letter;
-        pair.append(text);
-        strip.append(pair);
-      }
-    }
-    if (note) {
-      const p = document.createElement('span');
-      p.className = 'note';
-      p.textContent = note;
-      strip.append(p);
-    }
-    document.querySelectorAll('.decoded').forEach(old => old.remove());
-    document.body.append(strip);
-    requestAnimationFrame(() => strip.classList.add('shown'));
-    // Stays until the visitor taps somewhere (or leaves), so the letters cannot slip by unseen.
-    const dismiss = () => {
-      document.removeEventListener('pointerdown', dismiss, true);
-      strip.classList.remove('shown');
-      setTimeout(() => strip.remove(), 900);
-    };
-    setTimeout(() => document.addEventListener('pointerdown', dismiss, true), 900);
-  }
-
-  // ── the page itself acknowledges: a glow on the artifact, and a quiet note ─
+  // ── the page itself acknowledges, and keeps what it gave ─────────
   // Pages lay out differently: most center an artifact in .stage, the frequency page uses
   // .freq-stage, and the star chart fills the screen with its caption pinned to the bottom.
-  function recordedNote(animate) {
+  // The record stays on the page for good: nothing uncovered should vanish after a few seconds.
+  function pairs(letters, note) {
+    const row = document.createElement('div');
+    row.className = 'recorded-letters';
+    for (const letter of letters) {
+      const pair = document.createElement('span');
+      pair.className = 'pair';
+      pair.append(glyph(letter));
+      const text = document.createElement('b');
+      text.textContent = letter;
+      pair.append(text);
+      row.append(pair);
+    }
+    if (note) {
+      const n = document.createElement('span');
+      n.className = 'note';
+      n.textContent = note;
+      row.append(n);
+    }
+    return row;
+  }
+  function recordedNote(id, animate) {
     if (document.querySelector('.recorded')) return;
     const stage = document.querySelector('.stage, .freq-stage');
     const caption = document.querySelector('.caption, .chart-caption');
     if (!stage && !caption) return;
-    const p = document.createElement('p');
-    p.className = animate && !reduced() ? 'recorded recorded-new' : 'recorded';
-    p.textContent = 'Recorded.';
-    if (caption && getComputedStyle(caption).position === 'fixed') { p.classList.add('recorded-fixed'); document.body.append(p); }
-    else if (caption) caption.after(p);
-    else stage.append(p);
+    const block = document.createElement('div');
+    block.className = animate && !reduced() ? 'recorded recorded-new' : 'recorded';
+    const word = document.createElement('p');
+    word.className = 'recorded-word';
+    word.textContent = 'Recorded.';
+    block.append(word);
+    if (LETTERS[id] && (LETTERS[id].length || NOTES[id])) block.append(pairs(LETTERS[id], NOTES[id]));
+    if (caption && getComputedStyle(caption).position === 'fixed') { block.classList.add('recorded-fixed'); document.body.append(block); }
+    else if (caption) caption.after(block);
+    else stage.append(block);
   }
   function glowArtifact() {
     const artifact = document.querySelector('.stage > *, .freq-stage > *');
@@ -156,9 +151,9 @@
   }
 
   // ── the mark comes forward, takes its new stroke, and returns to the corner ─
-  function reveal(index, done) {
+  function reveal(index, done, whole) {
     const home = document.querySelector('.home');
-    if (reduced() || !home) { renderAllSigils(); done(); return; }
+    if (!home || (reduced() && !whole)) { renderAllSigils(); done(); return; }
     const veil = document.createElement('div');
     veil.className = 'reveal';
     veil.setAttribute('aria-hidden', 'true');
@@ -187,8 +182,34 @@
         done();
       }, 750);
     };
+    if (whole) {
+      // The last stroke: the mark stays forward, whole, and is itself the way on.
+      veil.classList.add('whole');
+      big.setAttribute('role', 'link');
+      const hint = document.createElement('p');
+      hint.className = 'reveal-hint';
+      hint.textContent = 'The mark is whole.';
+      veil.append(hint);
+      setTimeout(() => veil.classList.add('ready'), reduced() ? 0 : 2300);
+      veil.addEventListener('pointerdown', event => {
+        if (big.contains(event.target)) { finished = true; go(BASE + 'unrecorded/'); }
+        else land();
+      });
+      done();
+      return;
+    }
     veil.addEventListener('pointerdown', land);
     setTimeout(land, 2900);
+  }
+
+  // Once the mark is whole, every corner mark on the trail leads to the last page.
+  function openLastDoor() {
+    if (!PIECES.every(id => state.pieces.has(id)) || !document.body.dataset.piece) return;
+    document.querySelectorAll('.home').forEach(a => {
+      a.setAttribute('href', BASE + 'unrecorded/');
+      a.setAttribute('aria-label', 'The mark is whole');
+      a.classList.add('complete');
+    });
   }
 
   function award(id, note) {
@@ -197,8 +218,11 @@
     LETTERS[id].forEach(letter => state.letters.add(letter));
     save();
     glowArtifact();
-    recordedNote(true);
-    setTimeout(() => reveal(PIECES.indexOf(id), () => announce(LETTERS[id], note)), reduced() ? 0 : 650);
+    recordedNote(id, true);
+    const whole = PIECES.every(p => state.pieces.has(p));
+    if (whole) openLastDoor();
+    // The letters themselves are written into the page's record (recordedNote) and stay there.
+    setTimeout(() => reveal(PIECES.indexOf(id), () => {}, whole), reduced() ? 0 : 650);
     document.dispatchEvent(new CustomEvent('record:piece', { detail: { id } }));
     return true;
   }
@@ -329,7 +353,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     renderAllSigils();
     const piece = document.body.dataset.piece;
-    if (piece && state.pieces.has(piece)) recordedNote(false);
+    if (piece && state.pieces.has(piece)) recordedNote(piece, false);
+    openLastDoor();
     document.querySelectorAll('canvas[data-sky]').forEach(c => sky(c));
   });
 })();
