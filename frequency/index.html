@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../trail/trail.css?v=4">
   <script src="../trail/trail.js?v=4"></script>
+  <script src="sound.js?v=1"></script>
   <style>
     .band { position:relative; width:100vw; height:min(34svh,280px); touch-action:none; cursor:pointer; user-select:none; -webkit-user-select:none; }
     .band canvas { position:absolute; inset:0; width:100%; height:100%; }
@@ -19,6 +20,12 @@
     .reading { display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--gold); }
     .reading .glyph-mark { width:34px; height:34px; stroke-width:2.2; }
     .reading code { font-family:'Jost',sans-serif; font-size:16px; letter-spacing:.3em; color:var(--mist); }
+    .bar-end { display:flex; align-items:center; gap:18px; }
+    .sound { width:34px; height:34px; padding:6px; border:0; background:none; color:var(--mist); cursor:pointer; opacity:.8; }
+    .sound:hover { color:var(--gold); opacity:1; }
+    .sound svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .sound .off, .sound[aria-pressed="true"] .on { display:none; }
+    .sound[aria-pressed="true"] .off { display:inline; }
     .freq-stage { min-height:calc(100svh - 96px); display:flex; flex-direction:column; justify-content:center; padding-bottom:60px; }
   </style>
 </head>
@@ -26,7 +33,12 @@
   <canvas class="sky" data-sky aria-hidden="true"></canvas>
   <div class="bar">
     <a class="home" href="../" aria-label="Back to the orchard" data-leave><svg class="sigil" data-sigil aria-hidden="true"></svg></a>
-    <p class="folio">Frequency</p>
+    <div class="bar-end">
+      <button class="sound" type="button" aria-label="Mute sound" aria-pressed="false" data-sound>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="on" d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+      </button>
+      <p class="folio">Frequency</p>
+    </div>
   </div>
   <main class="freq-stage">
     <div class="band" role="button" tabindex="0" aria-label="A trembling line. Hold it still." data-band><canvas aria-hidden="true"></canvas></div>
@@ -37,6 +49,7 @@
     (() => {
       'use strict';
       const R = window.Record;
+      const sound = window.OrchardSound;
       const band = document.querySelector('[data-band]');
       const canvas = band.querySelector('canvas');
       const ctx = canvas.getContext('2d');
@@ -86,6 +99,7 @@
         lastT = t;
         if (!done) progress = holding ? Math.min(1, progress + dt / HOLD_MS) : Math.max(0, progress - dt / DRAIN_MS);
         const steady = done ? 1 : progress;
+        sound.update(progress, holding, signal(w / 2, reduced() ? 0 : t), done);
         // Build the line once, then draw it twice: a dim unfilled line, and the gold part on top.
         const line = new Path2D();
         const reach = done ? 1 : steady;
@@ -119,7 +133,7 @@
           }
         }
         energy = Math.max(.15, energy * .96);
-        if (!done && progress >= 1) { done = true; holding = false; R.award('frequency'); }
+        if (!done && progress >= 1) { done = true; holding = false; R.award('frequency'); sound.startRave(); }
       }
       function loop(t) { draw(t); frame = requestAnimationFrame(loop); }
       function resize() {
@@ -132,13 +146,21 @@
       // it trembles when anything moves
       addEventListener('scroll', () => { energy = Math.min(3, energy + Math.abs(scrollY - lastY) * .04); lastY = scrollY; }, { passive: true });
       addEventListener('pointermove', e => { if (!holding) energy = Math.min(3, energy + (Math.abs(e.movementX) + Math.abs(e.movementY)) * .015); });
-      const start = () => { if (done) return; holding = true; };
+      const start = () => { sound.wake(); if (done) return; holding = true; };
       const stop = () => { holding = false; };
       band.addEventListener('pointerdown', e => { try { band.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ } start(); });
       band.addEventListener('pointerup', stop);
       band.addEventListener('pointercancel', stop);
       band.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); start(); } });
       band.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stop(); });
+      // Sound needs a first touch. Any touch will do; on a solved page it brings the far-off music back.
+      const soundButton = document.querySelector('[data-sound]');
+      sound.onChange(m => { soundButton.setAttribute('aria-pressed', String(m)); soundButton.setAttribute('aria-label', m ? 'Turn sound on' : 'Mute sound'); });
+      soundButton.addEventListener('click', () => { sound.wake(); sound.setMuted(!sound.isMuted()); });
+      if (done) sound.startRave();
+      const firstTouch = () => { sound.wake(); document.removeEventListener('pointerdown', firstTouch, true); document.removeEventListener('keydown', firstTouch, true); };
+      document.addEventListener('pointerdown', firstTouch, true);
+      document.addEventListener('keydown', firstTouch, true);
       new ResizeObserver(resize).observe(band);
       document.addEventListener('visibilitychange', () => { cancelAnimationFrame(frame); lastT = 0; if (!document.hidden) frame = requestAnimationFrame(loop); });
       resize();
