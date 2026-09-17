@@ -31,7 +31,7 @@
     @keyframes shake { 20%,60% { transform:translateX(-6px); } 40%,80% { transform:translateX(6px); } }
     .invite { display:flex; flex-direction:column; align-items:center; gap:26px; }
     .invite form { display:block; width:min(94vw,680px); }
-    .line { position:relative; padding:26px 88px 30px 104px; transform:rotate(-.7deg); font-family:'IM Fell English',Georgia,serif; text-align:left; }
+    .line { position:relative; padding:26px 88px 26px 30px; transform:rotate(-.7deg); font-family:'IM Fell English',Georgia,serif; text-align:left; }
     .line .cols { display:grid; grid-template-columns:132px 34px 1fr; gap:0 12px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; opacity:.7;
       padding-bottom:6px; border-bottom:1px solid rgba(43,36,24,.35); }
     .line .row { display:grid; grid-template-columns:132px 34px 1fr; gap:0 12px; align-items:baseline; padding:10px 0 4px; border-bottom:1px solid rgba(94,120,140,.35); }
@@ -41,12 +41,30 @@
     .line input.hand::placeholder { color:rgba(42,34,23,.42); }
     .line input.hand:focus-visible { outline:none; }
     .line .row:focus-within { border-bottom-color:rgba(160,60,50,.55); }
-    .mark-pad { position:absolute; left:16px; top:18px; bottom:18px; width:72px; border-right:1px solid rgba(160,60,50,.35); }
-    .mark-pad svg { position:absolute; left:0; top:50%; width:64px; height:64px; transform:translateY(-50%); touch-action:none; cursor:crosshair; overflow:visible; }
-    .mark-pad path { fill:none; stroke:#1c160e; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
-    .mark-pad .hint { position:absolute; inset:0 8px 0 0; display:grid; place-items:center; font-family:'La Belle Aurore',cursive; font-size:15px; color:rgba(42,34,23,.42); pointer-events:none; transition:opacity .4s ease; }
-    .mark-pad.inked .hint { opacity:0; }
-    .line .blot { position:absolute; right:18px; top:50%; width:58px; height:48px; margin-top:-24px; padding:0; border:0; background:none; cursor:pointer;
+    .mark-block { display:flex; align-items:flex-start; gap:18px; margin:22px 0 34px; }
+    .mark-block .cap { padding-top:8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; opacity:.7; }
+    .mark-pad { position:relative; width:clamp(190px,34vw,248px); aspect-ratio:1; border:1px dashed rgba(160,60,50,.5); border-radius:2px;
+      touch-action:none; cursor:crosshair; transition:border-color .3s ease, background-color .3s ease; }
+    .mark-pad:hover { border-color:rgba(160,60,50,.85); background:rgba(160,60,50,.04); }
+    .mark-pad svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+    .mark-pad svg.ink { pointer-events:auto; }
+    .mark-pad path { fill:none; stroke:#1c160e; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+    /* A stroke draws itself, over and over, until the visitor draws their own. */
+    .mark-pad .ghost path { stroke:rgba(42,34,23,.45); stroke-width:2; stroke-dasharray:100; stroke-dashoffset:100; animation:ghost 5.4s ease-in-out infinite; }
+    @keyframes ghost {
+      0% { stroke-dashoffset:100; opacity:0; }
+      6% { opacity:.85; }
+      50% { stroke-dashoffset:0; opacity:.85; }
+      78% { stroke-dashoffset:0; opacity:.85; }
+      94%, 100% { stroke-dashoffset:0; opacity:0; }
+    }
+    .mark-pad .hint { position:absolute; left:0; right:0; bottom:-30px; text-align:center; font-family:'La Belle Aurore',cursive; font-size:16px;
+      color:rgba(42,34,23,.55); pointer-events:none; transition:opacity .4s ease; }
+    .mark-pad.inked .hint, .mark-pad.inked .ghost { opacity:0; }
+    @media (prefers-reduced-motion:reduce) {
+      .mark-pad .ghost path { animation:none; stroke-dashoffset:0; stroke-dasharray:3 7; opacity:.6; }
+    }
+    .line .blot { position:absolute; right:18px; bottom:26px; width:58px; height:48px; padding:0; border:0; background:none; cursor:pointer;
       transition:transform .6s ease, opacity .8s ease, filter .4s ease; }
     .line .blot svg { width:100%; height:100%; overflow:visible; }
     .line .blot:hover:not(:disabled) { filter:drop-shadow(0 0 6px rgba(201,164,104,.7)); }
@@ -60,14 +78,15 @@
     details.kept summary::-webkit-details-marker { display:none; }
     details.kept p { margin:12px 0 0; }
     @media (max-width:600px) {
-      .line { padding:20px 14px 70px 78px; }
+      .line { padding:20px 14px 78px 18px; }
       .line .cols, .line .row { grid-template-columns:92px 22px 1fr; gap:0 8px; }
       .line .cols span:last-child { display:none; }
       .line .row input.hand { grid-column:1 / -1; margin-top:10px; padding-top:6px; border-top:1px solid rgba(94,120,140,.25); }
       .hand { font-size:16px; }
-      .mark-pad { left:10px; width:58px; }
-      .mark-pad svg { width:50px; height:50px; }
-      .line .blot { top:auto; bottom:12px; margin-top:0; }
+      .mark-block { flex-direction:column; align-items:flex-start; gap:10px; margin:18px 0 32px; }
+      .mark-block .cap { padding-top:0; }
+      .mark-pad { width:min(74vw,250px); }
+      .line .blot { bottom:14px; }
     }
     [hidden] { display:none !important; }
   </style>
@@ -98,15 +117,19 @@
       <form data-invite-form autocomplete="off" novalidate>
         <div class="paper line" data-line>
           <canvas class="grain" aria-hidden="true"></canvas>
-          <div class="cols" aria-hidden="true"><span>Date</span><span>Row</span><span>Where to find you</span></div>
+          <div class="cols" aria-hidden="true"><span>Date</span><span>Row</span><span>Where to write to you</span></div>
           <div class="row">
             <span class="hand d" data-date></span>
             <span class="hand r">&middot;</span>
-            <input class="hand" type="email" name="email" placeholder="an address for a letter" autocomplete="email" spellcheck="false" autocapitalize="off" required aria-label="Email address">
+            <input class="hand" type="email" name="email" placeholder="your email address" autocomplete="email" spellcheck="false" autocapitalize="off" required aria-label="Email address">
           </div>
-          <div class="mark-pad" data-pad>
-            <span class="hint" aria-hidden="true">your mark</span>
-            <svg viewBox="0 0 100 100" role="img" aria-label="Draw one stroke to make your mark"><path data-stroke d=""></path></svg>
+          <div class="mark-block">
+            <span class="cap" aria-hidden="true">Your mark</span>
+            <div class="mark-pad" data-pad>
+              <svg class="ghost" viewBox="0 0 100 100" aria-hidden="true"><path pathLength="100" d="M20 66 C30 30 42 74 54 44 C61 26 72 32 82 50"></path></svg>
+              <svg class="ink" viewBox="0 0 100 100" role="img" aria-label="Draw your mark here, in one stroke"><path data-stroke d=""></path></svg>
+              <span class="hint" aria-hidden="true">draw one stroke here</span>
+            </div>
           </div>
           <label class="trap" aria-hidden="true">Leave this empty <input type="text" name="orchard" tabindex="-1" autocomplete="off"></label>
           <button class="blot" type="submit" aria-label="Press the ink blot to sign">
@@ -117,7 +140,7 @@
       <p class="status" role="status" data-status></p>
       <details class="kept">
         <summary>What is kept</summary>
-        <p>The address, the mark and today&rsquo;s date, on a single machine. They are used once, to write back, and never shared. Nothing else on these pages leaves your browser.</p>
+        <p>The email address, the mark and today&rsquo;s date, on a single machine. They are used once, to write back, and never shared. Nothing else on these pages leaves your browser.</p>
         <p>If the orchard does not write within thirty days, the line is erased. If it does, the line is erased a day after the letter, and the letter carries a way to strike it sooner.</p>
       </details>
     </section>
@@ -163,7 +186,7 @@
       const form = document.querySelector('[data-invite-form]');
       const line = document.querySelector('[data-line]');
       const pad = document.querySelector('[data-pad]');
-      const padSvg = pad.querySelector('svg');
+      const padSvg = pad.querySelector('svg.ink');
       const stroke = pad.querySelector('[data-stroke]');
       const blot = line.querySelector('.blot');
       const email = form.email;
@@ -195,7 +218,10 @@
       const endStroke = () => {
         if (!drawing) return;
         drawing = false;
-        if (points.length < 6) { points = []; stroke.setAttribute('d', ''); pad.classList.remove('inked'); }
+        if (points.length < 6) {
+          points = []; stroke.setAttribute('d', ''); pad.classList.remove('inked');
+          status.textContent = 'One stroke, the way you would sign.';
+        }
       };
       padSvg.addEventListener('pointerup', endStroke);
       padSvg.addEventListener('pointercancel', endStroke);
@@ -220,8 +246,12 @@
       form.addEventListener('submit', async e => {
         e.preventDefault();
         if (line.classList.contains('written')) return;
-        if (!email.value.trim() || !email.checkValidity()) { nudge(email); email.focus(); return; }
-        if (points.length < 6) { nudge(pad); status.textContent = 'Make your mark in the margin.'; return; }
+        if (!email.value.trim() || !email.checkValidity()) {
+          nudge(email); email.focus();
+          status.textContent = 'An email address, so the letter can reach you.';
+          return;
+        }
+        if (points.length < 6) { nudge(pad); status.textContent = 'Draw your mark in the box.'; return; }
         if (!INVITE_ENDPOINT) { status.textContent = 'The orchard is not taking names yet.'; return; }
         blot.disabled = true; status.textContent = '';
         try {
