@@ -22,7 +22,10 @@
     .entries { list-style:none; margin:0; padding:0; }
     .entries li { align-items:baseline; min-height:2.35em; padding:6px 0 2px; border-bottom:1px solid rgba(94,120,140,.28); }
     .entries .d, .entries .r, .entries .e { font-family:'La Belle Aurore',cursive; font-size:17px; line-height:1.35; color:#2a2217; }
-    .entries .r { text-align:center; }
+    /* La Belle Aurore draws a capital I as a loop, so VII came out as a V and two identical
+       curls and could not be counted. Written small, as a ledger of the period would write it,
+       the same hand sets it plainly. The markup still says VII. */
+    .entries .r { text-align:center; text-transform:lowercase; letter-spacing:.05em; }
     .entries s { text-decoration-thickness:1.5px; text-decoration-color:rgba(30,24,16,.85); }
     .entries .legible .e { color:#141009; }
     .entries .own .e { display:flex; align-items:center; gap:14px; }

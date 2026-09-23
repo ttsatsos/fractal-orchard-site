@@ -31,6 +31,8 @@
     .revealed.on path, .revealed.on circle { stroke-dashoffset:0; }
     .inscription { position:absolute; left:0; right:0; bottom:clamp(6px,1.4vw,12px); text-align:center; font-family:'La Belle Aurore',cursive;
       font-size:clamp(14px,2.4vw,20px); color:rgba(40,32,22,.8); }
+    /* Written small so the hand's looped capital I does not swallow the numeral; still VII underneath. */
+    .inscription .numeral { text-transform:lowercase; letter-spacing:.05em; }
     .inscription .shape { font-family:'Jost',sans-serif; letter-spacing:.3em; font-size:.8em; color:rgba(40,32,22,.9); opacity:0; transition:opacity 1.2s ease; }
     .inscription .shape.on { opacity:1; }
   </style>
@@ -49,7 +51,7 @@
         <canvas data-fallback aria-hidden="true"></canvas>
         <svg viewBox="0 0 300 200" aria-hidden="true" data-overlay></svg>
       </div>
-      <figcaption class="inscription">Row VII, after the grafting &nbsp;<span class="shape" data-shape>2 · 4 · 4</span></figcaption>
+      <figcaption class="inscription">Row <span class="numeral">VII</span>, after the grafting &nbsp;<span class="shape" data-shape>2 · 4 · 4</span></figcaption>
     </figure>
   </main>
   <script>
